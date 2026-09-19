@@ -1,0 +1,16 @@
+{
+  "src": [
+    "pages/SplashPage",
+    "pages/RoleSelectPage",
+    "pages/ChefHomePage",
+    "pages/ChefRecipeDetailPage",
+    "pages/DinerHomePage",
+    "pages/DinerOrderPage",
+    "pages/OrderDetailPage",
+    "pages/GalleryPage",
+    "pages/SettingsPage",
+    "pages/AddRecipePage",
+    "pages/RecipeCategoryPage",
+    "pages/FavoriteRecipePage"
+  ]
+}

@@ -1,0 +1,11 @@
+import request from '@/utils/request'
+export const getUsers = (params: any) => request.get('/users', { params })
+export const getUserById = (id: number) => request.get(`/users/${id}`)
+export const createUser = (data: any) => request.post('/users', data)
+export const updateUser = (id: number, data: any) => request.put(`/users/${id}`, data)
+export const deleteUser = (id: number) => request.delete(`/users/${id}`)
+export const updateUserStatus = (id: number, status: number) => request.put(`/users/${id}/status`, { status })
+export const updateUserRole = (id: number, role: string) => request.put(`/users/${id}/role`, { role })
+export const resetPassword = (id: number) => request.put(`/users/${id}/reset-password`)
+export const batchUpdateStatus = (ids: number[], status: number) => request.put('/users/batch-status', { ids, status })
+export const batchDeleteUsers = (ids: number[]) => request.delete('/users/batch-delete', { data: { ids } })

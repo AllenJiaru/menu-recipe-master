@@ -1,0 +1,11 @@
+SET NAMES utf8mb4;
+UPDATE recipe_category SET name = '肉类' WHERE id = 1;
+UPDATE recipe_category SET name = '蔬菜' WHERE id = 2;
+UPDATE recipe_category SET name = '汤类' WHERE id = 3;
+UPDATE recipe_category SET name = '甜品' WHERE id = 4;
+UPDATE recipe_category SET name = '蒸菜' WHERE id = 5;
+UPDATE recipe_category SET name = '炖菜' WHERE id = 6;
+UPDATE recipe_category SET name = '凉菜' WHERE id = 7;
+UPDATE recipe_category SET name = '炒菜' WHERE id = 8;
+UPDATE recipe_category SET name = '小吃' WHERE id = 9;
+UPDATE recipe_category SET name = '其他' WHERE id = 10;

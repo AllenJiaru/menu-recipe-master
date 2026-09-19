@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3307/shiyu_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    com.shiyu: debug
+    org.springframework.security: debug

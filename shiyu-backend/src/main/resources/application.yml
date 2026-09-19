@@ -1,0 +1,122 @@
+server:
+  port: 8081
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3307/shiyu_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&connectTimeout=5000
+    username: root
+    password: root
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+jwt:
+  secret: ShiyuRecipeManagementSystem2024SecretKeyForJwtTokenGenerationMustBeLongEnough
+  expiration: 86400000
+
+file:
+  upload:
+    upload-dir: D:/AI_test/menu-recipe-master/shiyu-backend/uploads
+    allowed-types: image/jpeg,image/png,image/gif,image/webp
+
+ai:
+  provider: ${AI_PROVIDER:openai}
+  providers:
+    openai:
+      type: openai-compatible
+      api-key: ${OPENAI_API_KEY:}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+      model: ${OPENAI_MODEL:gpt-4o}
+    deepseek:
+      type: openai-compatible
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: https://api.deepseek.com/v1
+      model: deepseek-chat
+    qwen:
+      type: openai-compatible
+      api-key: ${QWEN_API_KEY:}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      model: qwen-plus
+    zhipu:
+      type: openai-compatible
+      api-key: ${ZHIPU_API_KEY:}
+      base-url: https://open.bigmodel.cn/api/paas/v4
+      model: glm-4-plus
+    moonshot:
+      type: openai-compatible
+      api-key: ${MOONSHOT_API_KEY:}
+      base-url: https://api.moonshot.cn/v1
+      model: moonshot-v1-8k
+    ernie:
+      type: openai-compatible
+      api-key: ${ERNIE_API_KEY:}
+      base-url: https://qianfan.baidubce.com/v2
+      model: ernie-4.0-8k
+    spark:
+      type: openai-compatible
+      api-key: ${SPARK_API_KEY:}
+      api-secret: ${SPARK_API_SECRET:}
+      base-url: https://spark-api-open.xf-yun.com/v1
+      model: 4.0Ultra
+    doubao:
+      type: openai-compatible
+      api-key: ${DOUBAO_API_KEY:}
+      base-url: https://ark.cn-beijing.volces.com/api/v3
+      model: doubao-pro-32k
+    minimax:
+      type: openai-compatible
+      api-key: ${MINIMAX_API_KEY:}
+      base-url: https://api.minimax.chat/v1
+      model: abab6.5s-chat
+    mistral:
+      type: openai-compatible
+      api-key: ${MISTRAL_API_KEY:}
+      base-url: https://api.mistral.ai/v1
+      model: mistral-large-latest
+    groq:
+      type: openai-compatible
+      api-key: ${GROQ_API_KEY:}
+      base-url: https://api.groq.com/openai/v1
+      model: llama-3.3-70b-versatile
+    grok:
+      type: openai-compatible
+      api-key: ${GROK_API_KEY:}
+      base-url: https://api.x.ai/v1
+      model: grok-beta
+    hunyuan:
+      type: openai-compatible
+      api-key: ${HUNYUAN_API_KEY:}
+      base-url: https://api.hunyuan.cloud.tencent.com/v1
+      model: hunyuan-pro
+    claude:
+      type: claude
+      api-key: ${CLAUDE_API_KEY:}
+      model: claude-sonnet-4-20250514
+    gemini:
+      type: gemini
+      api-key: ${GEMINI_API_KEY:}
+      model: gemini-2.0-flash
+    ollama:
+      type: ollama
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model: ${OLLAMA_MODEL:qwen2.5:7b}

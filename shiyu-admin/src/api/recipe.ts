@@ -1,0 +1,12 @@
+import request from '@/utils/request'
+export const getRecipes = (params: any) => request.get('/recipes', { params })
+export const getRecipeById = (id: number) => request.get(`/recipes/${id}`)
+export const createRecipe = (data: any) => request.post('/recipes', data)
+export const updateRecipe = (id: number, data: any) => request.put(`/recipes/${id}`, data)
+export const deleteRecipe = (id: number) => request.delete(`/recipes/${id}`)
+export const toggleFavorite = (id: number) => request.put(`/recipes/${id}/favorite`)
+export const updateRecipeStatus = (id: number, status: number) => request.put(`/recipes/${id}/status`, { status })
+export const batchDeleteRecipes = (ids: number[]) => request.post('/recipes/batch/delete', { ids })
+export const batchUpdateRecipeStatus = (ids: number[], status: number) => request.post('/recipes/batch/status', { ids, status })
+export const getCategories = () => request.get('/recipes/categories')
+export const getRandomRecipes = (params: any) => request.get('/recipes/random', { params })

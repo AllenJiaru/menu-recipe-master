@@ -1,0 +1,43 @@
+# Logs
+*.log
+backend*.log
+
+# Backend
+shiyu-backend/target/
+shiyu-backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend
+shiyu-admin/node_modules/
+shiyu-admin/dist/
+shiyu-admin/.env.local
+shiyu-admin/.env.*.local
+
+# Android
+ShiyuApp/.gradle/
+ShiyuApp/build/
+ShiyuApp/app/build/
+ShiyuApp/local.properties
+ShiyuApp/.idea/
+ShiyuApp/*.iml
+ShiyuApp/**/build/
+
+# HarmonyOS
+menu-recipe-master/node_modules/
+menu-recipe-master/oh_modules/
+menu-recipe-master/.preview/
+menu-recipe-master/entry/build/
+menu-recipe-master/entry/oh_modules/
+menu-recipe-master/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Uploads
+**/uploads/
+shiyu-backend/uploads/

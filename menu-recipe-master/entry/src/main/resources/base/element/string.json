@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "情侣菜谱点餐应用"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "食遇"
+    },
+    {
+      "name": "permission_read_media_reason",
+      "value": "用于读取相册中的图片，展示菜谱照片和美食相册"
+    },
+    {
+      "name": "permission_write_media_reason",
+      "value": "用于保存拍摄的美食照片到相册"
+    },
+    {
+      "name": "permission_camera_reason",
+      "value": "用于拍摄美食照片，记录美好烹饪时刻"
+    },
+    {
+      "name": "permission_network_reason",
+      "value": "用于获取网络状态，提供更好的服务体验"
+    }
+  ]
+}

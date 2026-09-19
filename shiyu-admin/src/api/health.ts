@@ -1,0 +1,10 @@
+import request from '@/utils/request'
+export const getSystemHealth = () => request.get('/health')
+export const getDatabaseHealth = () => request.get('/health/database')
+export const getDiskHealth = () => request.get('/health/disk')
+export const getCacheHealth = () => request.get('/health/cache')
+export const clearCache = () => request.post('/health/cache/clear')
+export const optimizeDatabase = () => request.post('/health/database/optimize')
+export const getBackupList = () => request.get('/health/backups')
+export const createBackup = () => request.post('/health/backups/create')
+export const restoreBackup = (name: string) => request.post(`/health/backups/${name}/restore`)
