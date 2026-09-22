@@ -3,6 +3,18 @@ spring:
     url: jdbc:mysql://127.0.0.1:3307/shiyu_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: root
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: noreply@shiyu.app
+    password: your-smtp-password
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+app:
+  email:
+    enabled: false
 
 mybatis-plus:
   configuration:

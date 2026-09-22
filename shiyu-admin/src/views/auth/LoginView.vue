@@ -68,10 +68,10 @@
           </div>
 
           <div class="field">
-            <label>用户名</label>
+            <label>用户名 / 邮箱</label>
             <div class="input-wrap">
               <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-              <input v-model="lf.username" placeholder="请输入用户名" />
+              <input v-model="lf.username" placeholder="输入用户名或邮箱" />
             </div>
             <em v-if="le.username">{{ le.username }}</em>
           </div>
@@ -140,6 +140,15 @@
             <em v-if="re.nickname">{{ re.nickname }}</em>
           </div>
 
+          <div class="field">
+            <label>邮箱（可选，用于找回密码）</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+              <input v-model="rf.email" type="email" placeholder="QQ邮箱地址" />
+            </div>
+            <em v-if="re.email">{{ re.email }}</em>
+          </div>
+
           <button class="btn-primary" type="submit" :disabled="regLoading">
             <span v-if="regLoading" class="spin"></span>
             <span v-else>注 册</span>
@@ -148,20 +157,63 @@
           <p class="alt-hint">已有账号？<a @click="view = 'login'">返回登录</a></p>
         </form>
 
-        <!-- Forgot -->
-        <form v-else key="forgot" class="form-card" @submit.prevent="doReset">
+        <!-- Forgot Step 1: Enter username or email -->
+        <form v-else-if="view === 'forgot' && forgotStep === 1" key="forgot1" class="form-card" @submit.prevent="sendCode">
           <div class="form-header">
             <h2>重置密码</h2>
-            <p>输入用户名和新密码</p>
+            <p>Step 1/3 · 输入用户名或邮箱，发送验证码到绑定邮箱</p>
           </div>
 
           <div class="field">
-            <label>用户名</label>
+            <label>用户名 / 邮箱</label>
             <div class="input-wrap">
               <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-              <input v-model="ff.username" placeholder="输入注册用户名" />
+              <input v-model="ff.username" placeholder="输入用户名或邮箱" />
             </div>
             <em v-if="fe.username">{{ fe.username }}</em>
+          </div>
+
+          <button class="btn-primary" type="submit" :disabled="resetLoading">
+            <span v-if="resetLoading" class="spin"></span>
+            <span v-else>发送验证码</span>
+          </button>
+
+          <p class="alt-hint">想起密码了？<a @click="view = 'login'">返回登录</a></p>
+        </form>
+
+        <!-- Forgot Step 2: Enter code -->
+        <form v-else-if="view === 'forgot' && forgotStep === 2" key="forgot2" class="form-card" @submit.prevent="verifyCode">
+          <div class="form-header">
+            <h2>输入验证码</h2>
+            <p>Step 2/3 · 验证码已发送到 {{ maskedEmail }}</p>
+          </div>
+
+          <div class="field">
+            <label>6位验证码</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              <input v-model="ff.code" placeholder="输入验证码" maxlength="6" style="letter-spacing: 8px; text-align: center; font-size: 20px; font-weight: 600;" />
+            </div>
+            <em v-if="fe.code">{{ fe.code }}</em>
+          </div>
+
+          <button class="btn-primary" type="submit" :disabled="resetLoading">
+            <span v-if="resetLoading" class="spin"></span>
+            <span v-else>验证</span>
+          </button>
+
+          <p class="alt-hint">
+            <a @click="forgotStep = 1; ff.code = ''">返回上一步</a>
+            <span style="margin: 0 8px">·</span>
+            <a @click="sendCode" :disabled="countdown > 0">{{ countdown > 0 ? countdown + 's 后重发' : '重新发送' }}</a>
+          </p>
+        </form>
+
+        <!-- Forgot Step 3: Set new password -->
+        <form v-else-if="view === 'forgot' && forgotStep === 3" key="forgot3" class="form-card" @submit.prevent="doReset">
+          <div class="form-header">
+            <h2>设置新密码</h2>
+            <p>Step 3/3 · 验证通过，请设置新密码</p>
           </div>
 
           <div class="field">
@@ -194,31 +246,34 @@ import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessage } from 'element-plus'
-import { register, resetPassword } from '@/api/auth'
+import { register, sendResetCode, verifyResetPassword } from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
 const view = ref<'login' | 'register' | 'forgot'>('login')
+const forgotStep = ref(1)
 const loading = ref(false)
 const regLoading = ref(false)
 const resetLoading = ref(false)
 const showP = ref(false)
 const showRP = ref(false)
 const showFP = ref(false)
+const countdown = ref(0)
+const maskedEmail = ref('')
 
 const lf = reactive({ username: '', password: '' })
 const le = reactive({ username: '', password: '' })
-const rf = reactive({ username: '', password: '', nickname: '' })
-const re = reactive({ username: '', password: '', nickname: '' })
-const ff = reactive({ username: '', newPassword: '' })
-const fe = reactive({ username: '', newPassword: '' })
+const rf = reactive({ username: '', password: '', nickname: '', email: '' })
+const re = reactive({ username: '', password: '', nickname: '', email: '' })
+const ff = reactive({ username: '', code: '', newPassword: '' })
+const fe = reactive({ username: '', code: '', newPassword: '' })
 
 function clearErr() {
   Object.assign(le, { username: '', password: '' })
-  Object.assign(re, { username: '', password: '', nickname: '' })
-  Object.assign(fe, { username: '', newPassword: '' })
+  Object.assign(re, { username: '', password: '', nickname: '', email: '' })
+  Object.assign(fe, { username: '', code: '', newPassword: '' })
 }
 
 function vLogin(): boolean {
@@ -253,12 +308,12 @@ async function doRegister() {
   if (!vRegister()) return
   regLoading.value = true
   try {
-    await register({ username: rf.username, password: rf.password, nickname: rf.nickname })
+    await register({ username: rf.username, password: rf.password, nickname: rf.nickname, email: rf.email || undefined })
     ElMessage.success('注册成功！请登录')
     view.value = 'login'
     lf.username = rf.username
     lf.password = ''
-    rf.username = ''; rf.password = ''; rf.nickname = ''
+    rf.username = ''; rf.password = ''; rf.nickname = ''; rf.email = ''
   } catch (e: any) {
     ElMessage.error(e.message || '注册失败')
   } finally { regLoading.value = false }
@@ -266,21 +321,66 @@ async function doRegister() {
 
 function vForgot(): boolean {
   let ok = true
-  fe.username = ''; fe.newPassword = ''
+  fe.username = ''
   if (!ff.username.trim()) { fe.username = '请输入用户名'; ok = false }
-  if (!ff.newPassword || ff.newPassword.length < 6) { fe.newPassword = '密码至少需要6位'; ok = false }
   return ok
 }
-async function doReset() {
+
+let countdownTimer: any = null
+async function sendCode() {
   if (!vForgot()) return
   resetLoading.value = true
   try {
-    await resetPassword({ username: ff.username, newPassword: ff.newPassword })
+    await sendResetCode({ username: ff.username })
+    maskedEmail.value = '***@***.com（已发送）'
+    forgotStep.value = 2
+    ElMessage.success('验证码已发送，请查看邮箱')
+    countdown.value = 60
+    countdownTimer = setInterval(() => {
+      countdown.value--
+      if (countdown.value <= 0) clearInterval(countdownTimer)
+    }, 1000)
+  } catch (e: any) {
+    ElMessage.error(e.message || '发送失败')
+  } finally { resetLoading.value = false }
+}
+
+function vVerifyCode(): boolean {
+  let ok = true
+  fe.code = ''
+  if (!ff.code || ff.code.length !== 6) { fe.code = '请输入6位验证码'; ok = false }
+  return ok
+}
+
+async function verifyCode() {
+  if (!vVerifyCode()) return
+  resetLoading.value = true
+  try {
+    forgotStep.value = 3
+    ElMessage.success('验证通过，请设置新密码')
+  } catch (e: any) {
+    ElMessage.error(e.message || '验证失败')
+  } finally { resetLoading.value = false }
+}
+
+function vResetNew(): boolean {
+  let ok = true
+  fe.newPassword = ''
+  if (!ff.newPassword || ff.newPassword.length < 6) { fe.newPassword = '密码至少需要6位'; ok = false }
+  return ok
+}
+
+async function doReset() {
+  if (!vResetNew()) return
+  resetLoading.value = true
+  try {
+    await verifyResetPassword({ username: ff.username, code: ff.code, newPassword: ff.newPassword })
     ElMessage.success('密码已重置，请使用新密码登录')
     view.value = 'login'
+    forgotStep.value = 1
     lf.username = ff.username
     lf.password = ''
-    ff.username = ''; ff.newPassword = ''
+    ff.username = ''; ff.code = ''; ff.newPassword = ''
   } catch (e: any) {
     ElMessage.error(e.message || '重置失败')
   } finally { resetLoading.value = false }

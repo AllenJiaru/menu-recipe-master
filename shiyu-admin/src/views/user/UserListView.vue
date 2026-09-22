@@ -8,7 +8,7 @@
           <p>管理系统用户账号与权限</p>
         </div>
       </div>
-      <el-button type="primary" @click="showDialog()" v-permission="'system:user:create'">
+      <el-button type="primary" @click="showDialog()" v-if="authStore.hasPermission('system:user:create')">
         <el-icon><Plus /></el-icon> 新建用户
       </el-button>
     </div>
@@ -80,9 +80,17 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="email" label="邮箱" min-width="180">
+          <template #default="{ row }">
+            <span v-if="row.email" class="email-cell">
+              <el-icon :size="14"><Message /></el-icon> {{ row.email }}
+            </span>
+            <span v-else class="text-muted">未绑定</span>
+          </template>
+        </el-table-column>
         <el-table-column label="角色" width="120" align="center">
           <template #default="{ row }">
-            <el-dropdown trigger="click" @command="(cmd: string) => handleQuickRole(row, cmd)" v-permission="'system:user:edit'">
+            <el-dropdown trigger="click" @command="(cmd: string) => handleQuickRole(row, cmd)" v-if="authStore.hasPermission('system:user:edit')">
               <span :class="['role-badge', row.role, 'clickable']">{{ roleMap[row.role] || row.role }}<el-icon class="el-icon--right"><ArrowDown /></el-icon></span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -116,7 +124,7 @@
               :active-value="1"
               :inactive-value="0"
               @change="handleStatus(row)"
-              v-permission="'system:user:edit'"
+              v-if="authStore.hasPermission('system:user:edit')"
               :disabled="row.id === authStore.userInfo?.id"
             />
           </template>
@@ -130,21 +138,21 @@
             <span class="time-cell empty" v-else>从未登录</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right" align="right">
+        <el-table-column label="操作" width="280" fixed="right" align="right">
           <template #default="{ row }">
             <div class="action-group">
-              <el-button text size="small" @click="showDialog(row)" v-permission="'system:user:edit'" class="action-btn">
+              <el-button text size="small" @click="showDialog(row)" v-if="authStore.hasPermission('system:user:edit')" class="action-btn">
                 <el-icon><Edit /></el-icon> 编辑
               </el-button>
-              <el-button text size="small" @click="showRoleDialog(row)" v-permission="'system:user:edit'" class="action-btn">
+              <el-button text size="small" @click="showRoleDialog(row)" v-if="authStore.hasPermission('system:user:edit')" class="action-btn">
                 <el-icon><User /></el-icon> 角色
               </el-button>
-              <el-button text size="small" @click="handleResetPwd(row)" v-permission="'system:user:resetpwd'" class="action-btn warning">
+              <el-button text size="small" @click="handleResetPwd(row)" v-if="authStore.hasPermission('system:user:resetpwd')" class="action-btn warning">
                 <el-icon><Key /></el-icon> 重置
               </el-button>
               <el-popconfirm title="确定删除?" @confirm="handleDelete(row.id)">
                 <template #reference>
-                  <el-button text size="small" v-permission="'system:user:delete'" class="action-btn danger"
+                  <el-button text size="small" v-if="authStore.hasPermission('system:user:delete')" class="action-btn danger"
                     :disabled="row.id === authStore.userInfo?.id">
                     <el-icon><Delete /></el-icon>
                   </el-button>
@@ -405,6 +413,7 @@ onMounted(() => {
 }
 
 .org-name { font-size: 13px; color: var(--text-secondary); }
+.email-cell { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-secondary); }
 .clickable { cursor: pointer; transition: opacity 0.2s; &:hover { opacity: 0.75; } }
 .text-muted { color: var(--text-quaternary); font-size: 13px; }
 

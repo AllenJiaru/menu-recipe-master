@@ -22,3 +22,27 @@ export const aiCreateSession = (data?: { title?: string }) => request.post('/ai/
 export const aiDeleteSession = (id: number) => request.delete(`/ai/sessions/${id}`)
 export const aiListMessages = (sessionId: number) => request.get(`/ai/sessions/${sessionId}/messages`)
 export const aiChatSession = (data: { sessionId?: number; message: string }) => request.post('/ai/chat-session', data)
+
+// P0: 核心 AI 功能
+export const aiSemanticSearch = (data: any) => request.post('/ai/semantic-search', data)
+export const aiSmartOrder = (data: any) => request.post('/ai/smart-order', data)
+export const aiRecipeAssist = (data: any) => request.post('/ai/recipe-assist', data)
+export const aiInventoryAdvisor = (data: any) => request.post('/ai/inventory-advisor', data)
+
+// P1: 效率提升 AI 功能
+export const aiInventoryPredict = (data: any) => request.post('/ai/inventory-predict', data)
+export const aiSceneMenu = (data: any) => request.post('/ai/scene-menu', data)
+export const aiDataInsight = (data: any) => request.post('/ai/data-insight', data)
+export const aiCopywriting = (data: any) => request.post('/ai/copywriting', data)
+
+// P2: 差异化 AI 功能
+export const aiSmartSchedule = (data: any) => request.post('/ai/smart-schedule', data)
+export const aiUserProfile = (data: any) => request.post('/ai/user-profile', data)
+export const aiTrendPredict = (data: any) => request.post('/ai/trend-predict', data)
+export const aiMenuAnalysis = (data: any) => request.post('/ai/menu-analysis', data)
+export const aiOrderAnalysis = (data: any) => request.post('/ai/order-analysis', data)
+
+// AI 历史记录
+export const aiGetHistory = (params?: { page?: number; size?: number; feature?: string }) => request.get('/ai/history', { params })
+export const aiGetStats = () => request.get('/ai/stats')
+export const aiDeleteHistory = (id: number) => request.delete(`/ai/history/${id}`)

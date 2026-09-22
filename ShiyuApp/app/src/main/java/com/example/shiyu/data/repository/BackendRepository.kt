@@ -128,11 +128,12 @@ class BackendRepository @Inject constructor(
         username: String,
         password: String,
         nickname: String,
-        role: String
+        role: String,
+        email: String? = null
     ): Result<LoginResponseData> = safeApiCall {
         setupApi()
         val response = ApiClient.backendApi.register(
-            RegisterRequest(username = username, password = password, nickname = nickname, role = role)
+            RegisterRequest(username = username, password = password, nickname = nickname, role = role, email = email)
         )
         if (response.code == 200 && response.data != null) {
             saveSession(response.data)
@@ -146,6 +147,28 @@ class BackendRepository @Inject constructor(
         setupApi()
         val response = ApiClient.backendApi.resetPassword(
             ResetPasswordRequest(username = username, newPassword = newPassword)
+        )
+        if (response.code == 200) {
+            "密码重置成功，请返回登录"
+        } else {
+            throw Exception(response.message)
+        }
+    }
+
+    suspend fun sendResetCode(username: String): Result<String> = safeApiCall {
+        setupApi()
+        val response = ApiClient.backendApi.sendResetCode(SendResetCodeRequest(username = username))
+        if (response.code == 200) {
+            "验证码已发送到绑定邮箱"
+        } else {
+            throw Exception(response.message)
+        }
+    }
+
+    suspend fun verifyResetPassword(username: String, code: String, newPassword: String): Result<String> = safeApiCall {
+        setupApi()
+        val response = ApiClient.backendApi.verifyResetPassword(
+            VerifyResetPasswordRequest(username = username, code = code, newPassword = newPassword)
         )
         if (response.code == 200) {
             "密码重置成功，请返回登录"

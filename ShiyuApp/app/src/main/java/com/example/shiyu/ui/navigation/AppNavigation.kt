@@ -95,10 +95,24 @@ object Routes {
     const val VERSION_HISTORY = "version_history/{recipeId}"
     const val RECIPE_ANALYSIS = "recipe_analysis/{recipeId}"
     const val AI_CHAT = "ai_chat"
+    const val AI_HUB = "ai_hub"
     const val AI_RECOMMEND = "ai_recommend"
     const val AI_MEAL_PLAN = "ai_meal_plan"
     const val AI_NUTRITION = "ai_nutrition"
     const val AI_LEFTOVER = "ai_leftover"
+    const val AI_SEMANTIC_SEARCH = "ai_semantic_search"
+    const val AI_RECIPE_ASSIST = "ai_recipe_assist"
+    const val AI_INVENTORY_ADVISOR = "ai_inventory_advisor"
+    const val AI_INVENTORY_PREDICT = "ai_inventory_predict"
+    const val AI_SCENE_MENU = "ai_scene_menu"
+    const val AI_ORDER_ANALYSIS = "ai_order_analysis"
+    const val AI_DATA_INSIGHT = "ai_data_insight"
+    const val AI_COPYWRITING = "ai_copywriting"
+    const val AI_SMART_SCHEDULE = "ai_smart_schedule"
+    const val AI_TREND_PREDICT = "ai_trend_predict"
+    const val AI_MENU_ANALYSIS = "ai_menu_analysis"
+    const val AI_SMART_ORDER = "ai_smart_order"
+    const val AI_USER_PROFILE = "ai_user_profile"
 
     fun recipeDetail(recipeId: Long) = "recipe_detail/$recipeId"
     fun dinerOrder(recipeId: Long) = "diner_order/$recipeId"
@@ -221,7 +235,7 @@ fun AppNavigation() {
                     navController.navigate(Routes.orderDetail(orderId))
                 },
                 onNavigateToNotificationCenter = { navController.navigate(Routes.NOTIFICATION_CENTER) },
-                onNavigateToAiChat = { navController.navigate(Routes.AI_CHAT) },
+                onNavigateToAiChat = { navController.navigate(Routes.AI_HUB) },
                 onNavigateToAiRecommend = { navController.navigate(Routes.AI_RECOMMEND) }
             )
         }
@@ -239,7 +253,7 @@ fun AppNavigation() {
                     navController.navigate(Routes.recipeDetail(recipeId))
                 },
                 onNavigateToNotificationCenter = { navController.navigate(Routes.NOTIFICATION_CENTER) },
-                onNavigateToAiChat = { navController.navigate(Routes.AI_CHAT) },
+                onNavigateToAiChat = { navController.navigate(Routes.AI_HUB) },
                 onNavigateToAiRecommend = { navController.navigate(Routes.AI_RECOMMEND) }
             )
         }
@@ -471,6 +485,19 @@ fun AppNavigation() {
         }
 
         composable(
+            Routes.AI_HUB,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiHubScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToChat = { navController.navigate(Routes.AI_CHAT) },
+                onNavigateToFeature = { route -> navController.navigate(route) }
+            )
+        }
+        composable(
             Routes.AI_CHAT,
             enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
             exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
@@ -514,6 +541,123 @@ fun AppNavigation() {
             popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
         ) {
             com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_leftover_title), featureType = "leftover", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_SEMANTIC_SEARCH,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_semantic_search_title), featureType = "semantic_search", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_RECIPE_ASSIST,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_recipe_assist_title), featureType = "recipe_assist", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_INVENTORY_ADVISOR,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_inventory_advisor_title), featureType = "inventory_advisor", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_INVENTORY_PREDICT,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_inventory_predict_title), featureType = "inventory_predict", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_SCENE_MENU,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_scene_menu_title), featureType = "scene_menu", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_ORDER_ANALYSIS,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_order_analysis_title), featureType = "order_analysis", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_DATA_INSIGHT,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_data_insight_title), featureType = "data_insight", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_COPYWRITING,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_copywriting_title), featureType = "copywriting", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_SMART_SCHEDULE,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_smart_schedule_title), featureType = "smart_schedule", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_TREND_PREDICT,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_trend_predict_title), featureType = "trend_predict", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_MENU_ANALYSIS,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_menu_analysis_title), featureType = "menu_analysis", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_SMART_ORDER,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_smart_order_title), featureType = "smart_order", onBack = { navController.popBackStack() })
+        }
+        composable(
+            Routes.AI_USER_PROFILE,
+            enterTransition = { slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300)) },
+            exitTransition = { slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)) },
+            popEnterTransition = { slideInHorizontally(tween(300)) { it } + fadeIn(tween(300)) },
+            popExitTransition = { slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)) }
+        ) {
+            com.example.shiyu.ui.ai.AiFeatureScreen(title = stringResource(R.string.ai_user_profile_title), featureType = "user_profile", onBack = { navController.popBackStack() })
         }
     }
 }

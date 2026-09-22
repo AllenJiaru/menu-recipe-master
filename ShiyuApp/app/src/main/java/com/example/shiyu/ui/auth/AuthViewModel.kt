@@ -52,7 +52,7 @@ class LoginViewModel @Inject constructor(
         val username = _username.value.trim()
         val password = _password.value
         if (username.isEmpty() || password.isEmpty()) {
-            _errorMessage.value = "请输入用户名和密码"
+            _errorMessage.value = "请输入用户名或邮箱和密码"
             return
         }
         viewModelScope.launch {
@@ -90,6 +90,9 @@ class RegisterViewModel @Inject constructor(
     private val _nickname = mutableStateOf("")
     val nickname: State<String> = _nickname
 
+    private val _email = mutableStateOf("")
+    val email: State<String> = _email
+
     private val _role = mutableStateOf(Constants.ROLE_CHEF)
     val role: State<String> = _role
 
@@ -106,6 +109,7 @@ class RegisterViewModel @Inject constructor(
     fun updatePassword(v: String) { _password.value = v }
     fun updateConfirmPassword(v: String) { _confirmPassword.value = v }
     fun updateNickname(v: String) { _nickname.value = v }
+    fun updateEmail(v: String) { _email.value = v }
     fun updateRole(v: String) { _role.value = v }
 
     fun register() {
@@ -120,11 +124,13 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = ""
+            val emailVal = _email.value.trim().ifEmpty { null }
             val result = backendRepository.register(
                 username = username,
                 password = password,
                 nickname = _nickname.value.trim().ifEmpty { username },
-                role = _role.value
+                role = _role.value,
+                email = emailVal
             )
             result.onSuccess { data ->
                 viewModelScope.launch {
@@ -144,8 +150,14 @@ class ForgotPasswordViewModel @Inject constructor(
     private val backendRepository: BackendRepository
 ) : ViewModel() {
 
+    private val _step = mutableStateOf(1)
+    val step: State<Int> = _step
+
     private val _username = mutableStateOf("")
     val username: State<String> = _username
+
+    private val _code = mutableStateOf("")
+    val code: State<String> = _code
 
     private val _newPassword = mutableStateOf("")
     val newPassword: State<String> = _newPassword
@@ -163,27 +175,63 @@ class ForgotPasswordViewModel @Inject constructor(
     val errorMessage: State<String> = _errorMessage
 
     fun updateUsername(v: String) { _username.value = v }
+    fun updateCode(v: String) { _code.value = v }
     fun updateNewPassword(v: String) { _newPassword.value = v }
     fun updateConfirmPassword(v: String) { _confirmPassword.value = v }
 
-    fun reset() {
+    fun sendCode() {
         if (_isLoading.value) return
         val username = _username.value.trim()
-        when {
-            username.isEmpty() -> { _errorMessage.value = "请输入用户名"; return }
-            _newPassword.value.length < 6 -> { _errorMessage.value = "新密码至少6位"; return }
-            _newPassword.value != _confirmPassword.value -> { _errorMessage.value = "两次输入的密码不一致"; return }
+        if (username.isEmpty()) {
+            _errorMessage.value = "请输入用户名或邮箱"
+            return
         }
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = ""
-            val result = backendRepository.resetPassword(username, _newPassword.value)
+            val result = backendRepository.sendResetCode(username)
             result.onSuccess {
-                _message.value = it
+                _message.value = "验证码已发送，请查收邮箱"
+                _step.value = 2
+                _errorMessage.value = ""
+            }.onFailure {
+                _errorMessage.value = "发送失败：${it.message ?: "网络错误"}"
+            }
+            _isLoading.value = false
+        }
+    }
+
+    fun verifyCode() {
+        if (_isLoading.value) return
+        val codeVal = _code.value.trim()
+        if (codeVal.length != 6) {
+            _errorMessage.value = "请输入6位验证码"
+            return
+        }
+        if (_newPassword.value.length < 6) {
+            _errorMessage.value = "新密码至少6位"
+            return
+        }
+        if (_newPassword.value != _confirmPassword.value) {
+            _errorMessage.value = "两次输入的密码不一致"
+            return
+        }
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = ""
+            val result = backendRepository.verifyResetPassword(
+                _username.value.trim(), codeVal, _newPassword.value
+            )
+            result.onSuccess {
+                _message.value = "密码重置成功"
+                _step.value = 3
+                _errorMessage.value = ""
             }.onFailure {
                 _errorMessage.value = "重置失败：${it.message ?: "网络错误"}"
             }
             _isLoading.value = false
         }
     }
+
+    fun goToStep1() { _step.value = 1; _code.value = ""; _newPassword.value = ""; _confirmPassword.value = ""; _errorMessage.value = ""; _message.value = "" }
 }

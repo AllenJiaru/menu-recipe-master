@@ -12,4 +12,6 @@ public interface AuthService {
     void changePassword(String oldPassword, String newPassword);
     void resetPassword(String username, String newPassword);
     User updateProfile(String nickname, String avatar);
+    void sendResetCode(String username);
+    void verifyAndResetPassword(String username, String code, String newPassword);
 }

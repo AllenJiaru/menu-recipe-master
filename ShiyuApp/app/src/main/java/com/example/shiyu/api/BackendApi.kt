@@ -32,13 +32,17 @@ data class RegisterRequest(
     val username: String,
     val password: String,
     val nickname: String? = null,
-    val role: String? = null
+    val role: String? = null,
+    val email: String? = null
 )
 
 data class ResetPasswordRequest(
     val username: String,
     val newPassword: String
 )
+
+data class SendResetCodeRequest(val username: String)
+data class VerifyResetPasswordRequest(val username: String, val code: String, val newPassword: String)
 
 data class UserDto(
     val id: Long?,
@@ -518,6 +522,12 @@ interface BackendApi {
 
     @POST("auth/reset-password")
     suspend fun resetPassword(@Body body: ResetPasswordRequest): ApiResponse<Void>
+
+    @POST("auth/send-reset-code")
+    suspend fun sendResetCode(@Body body: SendResetCodeRequest): ApiResponse<Void>
+
+    @POST("auth/verify-reset-password")
+    suspend fun verifyResetPassword(@Body body: VerifyResetPasswordRequest): ApiResponse<Void>
 
     @GET("auth/info")
     suspend fun getUserInfo(): ApiResponse<UserDto>
@@ -1079,4 +1089,43 @@ interface BackendApi {
 
     @POST("ai/translate")
     suspend fun aiTranslate(@Body body: Map<String, Any>): ApiResponse<AiResponseDto>
+
+    @POST("ai/semantic-search")
+    suspend fun aiSemanticSearch(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/recipe-assist")
+    suspend fun aiRecipeAssist(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/inventory-advisor")
+    suspend fun aiInventoryAdvisor(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/inventory-predict")
+    suspend fun aiInventoryPredict(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/scene-menu")
+    suspend fun aiSceneMenu(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/order-analysis")
+    suspend fun aiOrderAnalysis(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/data-insight")
+    suspend fun aiDataInsight(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/copywriting")
+    suspend fun aiCopywriting(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/smart-schedule")
+    suspend fun aiSmartSchedule(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/trend-predict")
+    suspend fun aiTrendPredict(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/menu-analysis")
+    suspend fun aiMenuAnalysis(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/smart-order")
+    suspend fun aiSmartOrder(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
+
+    @POST("ai/user-profile")
+    suspend fun aiUserProfile(@Body body: Map<String, String>): ApiResponse<AiResponseDto>
 }

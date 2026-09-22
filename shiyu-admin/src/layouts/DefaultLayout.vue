@@ -211,12 +211,26 @@ const menuGroups = computed<MenuGroup[]>(() => {
         { path: '/permissions', title: '权限管理', icon: 'Lock' },
         { path: '/notices', title: '公告管理', icon: 'Bell' },
         { path: '/settings', title: '系统设置', icon: 'Setting' },
+        { path: '/settings/email', title: '邮件设置', icon: 'Message' },
       ]
     },
     {
       key: 'ai', title: 'AI 智能', icon: 'MagicStick',
       items: [
         { path: '/ai', title: 'AI 助手', icon: 'ChatDotRound' },
+        { path: '/ai/semantic-search', title: 'AI 语义搜索', icon: 'Search' },
+        { path: '/ai/smart-order', title: 'AI 智能点餐', icon: 'Dish' },
+        { path: '/ai/recipe-assist', title: 'AI 菜谱创作', icon: 'Edit' },
+        { path: '/ai/inventory-advisor', title: 'AI 库存顾问', icon: 'Box' },
+        { path: '/ai/scene-menu', title: 'AI 场景菜单', icon: 'Calendar' },
+        { path: '/ai/copywriting', title: 'AI 文案助手', icon: 'EditPen' },
+        { path: '/ai/data-insight', title: 'AI 数据洞察', icon: 'DataAnalysis' },
+        { path: '/ai/smart-schedule', title: 'AI 智能排班', icon: 'UserFilled' },
+        { path: '/ai/user-profile', title: 'AI 用户画像', icon: 'User' },
+        { path: '/ai/trend-predict', title: 'AI 趋势预测', icon: 'Sunny' },
+        { path: '/ai/menu-analysis', title: 'AI 整桌菜分析', icon: 'Grid' },
+        { path: '/ai/order-analysis', title: 'AI 订单分析', icon: 'ShoppingCart' },
+        { path: '/ai/inventory-predict', title: 'AI 库存预测', icon: 'TrendCharts' },
         { path: '/ai/recommend', title: '智能推荐', icon: 'Sunny' },
         { path: '/ai/ingredient', title: '食材变菜谱', icon: 'Food' },
         { path: '/ai/nutrition', title: '营养分析', icon: 'DataAnalysis' },
@@ -229,6 +243,7 @@ const menuGroups = computed<MenuGroup[]>(() => {
         { path: '/ai/health', title: '健康报告', icon: 'FirstAidKit' },
         { path: '/ai/translate', title: '菜谱翻译', icon: 'EditPen' },
         { path: '/ai/settings', title: 'AI 设置', icon: 'Setting' },
+        { path: '/ai/history', title: 'AI 使用历史', icon: 'Clock' },
       ]
     },
     {

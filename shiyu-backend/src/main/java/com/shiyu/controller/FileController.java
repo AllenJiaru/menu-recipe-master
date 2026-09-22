@@ -2,6 +2,8 @@ package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
 import com.shiyu.service.FileService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -15,11 +17,13 @@ import java.io.File;
 
 @RestController
 @RequestMapping("/api/files")
+@Tag(name = "文件管理", description = "图片上传、文件预览")
 public class FileController {
 
     @Autowired
     private FileService fileService;
 
+    @Operation(summary = "上传文件", description = "上传图片或文件，返回文件URL")
     @PostMapping("/upload")
     public ApiResponse<String> uploadFile(
             @RequestParam("file") MultipartFile file,
@@ -27,12 +31,14 @@ public class FileController {
         return ApiResponse.success(fileService.uploadFile(file, type));
     }
 
+    @Operation(summary = "删除文件", description = "根据文件名删除文件")
     @DeleteMapping("/{filename}")
     public ApiResponse<Void> deleteFile(@PathVariable String filename) {
         fileService.deleteFile(filename);
         return ApiResponse.success();
     }
 
+    @Operation(summary = "预览文件", description = "根据路径预览文件内容")
     @GetMapping("/preview")
     public ResponseEntity<Resource> previewFile(@RequestParam("path") String path) {
         String filePath = fileService.getFilePath(path);

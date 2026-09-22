@@ -96,8 +96,8 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = viewModel.username.value,
                         onValueChange = { viewModel.updateUsername(it) },
-                        label = { Text(stringResource(R.string.username_label)) },
-                        placeholder = { Text(stringResource(R.string.username_hint), color = TextHint) },
+                        label = { Text(stringResource(R.string.username_or_email_label)) },
+                        placeholder = { Text(stringResource(R.string.username_or_email_hint), color = TextHint) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),

@@ -28,6 +28,7 @@ fun ForgotPasswordScreen(
     onNavigateBack: () -> Unit
 ) {
     val viewModel: ForgotPasswordViewModel = hiltViewModel()
+    val step = viewModel.step.value
 
     Scaffold(
         topBar = {
@@ -50,10 +51,14 @@ fun ForgotPasswordScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "🔑", fontSize = 44.sp)
+            Text(text = if (step == 3) "✅" else "🔑", fontSize = 44.sp)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = stringResource(R.string.forgot_password_subtitle),
+                text = when (step) {
+                    1 -> stringResource(R.string.forgot_step1_subtitle)
+                    2 -> stringResource(R.string.forgot_step2_subtitle)
+                    else -> stringResource(R.string.forgot_step3_subtitle)
+                },
                 fontSize = 14.sp,
                 color = TextSecondary
             )
@@ -67,105 +72,188 @@ fun ForgotPasswordScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(22.dp)) {
-                    OutlinedTextField(
-                        value = viewModel.username.value,
-                        onValueChange = { viewModel.updateUsername(it) },
-                        label = { Text(stringResource(R.string.username_label)) },
-                        placeholder = { Text(stringResource(R.string.forgot_password_username_hint), color = TextHint) },
+                    // Step indicators
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Primary,
-                            unfocusedBorderColor = BorderColor
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    OutlinedTextField(
-                        value = viewModel.newPassword.value,
-                        onValueChange = { viewModel.updateNewPassword(it) },
-                        label = { Text(stringResource(R.string.new_password_label)) },
-                        placeholder = { Text(stringResource(R.string.forgot_password_new_hint), color = TextHint) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Primary,
-                            unfocusedBorderColor = BorderColor
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    OutlinedTextField(
-                        value = viewModel.confirmPassword.value,
-                        onValueChange = { viewModel.updateConfirmPassword(it) },
-                        label = { Text(stringResource(R.string.confirm_new_password_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Primary,
-                            unfocusedBorderColor = BorderColor
-                        )
-                    )
-
-                    if (viewModel.errorMessage.value.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = viewModel.errorMessage.value,
-                            fontSize = 13.sp,
-                            color = Error
-                        )
-                    }
-
-                    if (viewModel.message.value.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = viewModel.message.value,
-                            fontSize = 13.sp,
-                            color = Success
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(22.dp))
-
-                    Button(
-                        onClick = { viewModel.reset() },
-                        enabled = !viewModel.isLoading.value,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                        shape = RoundedCornerShape(25.dp)
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (viewModel.isLoading.value) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(22.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(stringResource(R.string.reset_password_button), fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        listOf("1", "2", "3").forEachIndexed { index, num ->
+                            val isActive = step > index
+                            val isCurrent = step == index + 1
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(
+                                        color = if (isActive) Primary else if (isCurrent) PrimaryLight else SurfaceGray,
+                                        shape = RoundedCornerShape(16.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = num,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isActive) Color.White else TextSecondary
+                                )
+                            }
+                            if (index < 2) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(40.dp)
+                                        .height(2.dp)
+                                        .background(if (step > index + 1) Primary else SurfaceGray)
+                                )
+                            }
                         }
                     }
 
-                    if (viewModel.message.value.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Text(
-                            text = stringResource(R.string.back_to_login),
-                            fontSize = 14.sp,
-                            color = Primary,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .clickable { onNavigateBack() }
-                        )
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    when (step) {
+                        1 -> {
+                            Text(
+                                text = stringResource(R.string.forgot_step1_label),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = viewModel.username.value,
+                                onValueChange = { viewModel.updateUsername(it) },
+                                label = { Text(stringResource(R.string.username_or_email_label)) },
+                                placeholder = { Text(stringResource(R.string.forgot_password_username_hint), color = TextHint) },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = BorderColor
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(22.dp))
+                            Button(
+                                onClick = { viewModel.sendCode() },
+                                enabled = !viewModel.isLoading.value,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                                shape = RoundedCornerShape(25.dp)
+                            ) {
+                                if (viewModel.isLoading.value) {
+                                    CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.White, strokeWidth = 2.dp)
+                                } else {
+                                    Text(stringResource(R.string.send_code_button), fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+
+                        2 -> {
+                            Text(
+                                text = stringResource(R.string.forgot_step2_label),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = TextPrimary
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = viewModel.code.value,
+                                onValueChange = { viewModel.updateCode(it) },
+                                label = { Text(stringResource(R.string.verification_code_label)) },
+                                placeholder = { Text(stringResource(R.string.verification_code_hint), color = TextHint) },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = BorderColor
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            OutlinedTextField(
+                                value = viewModel.newPassword.value,
+                                onValueChange = { viewModel.updateNewPassword(it) },
+                                label = { Text(stringResource(R.string.new_password_label)) },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = BorderColor
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(14.dp))
+                            OutlinedTextField(
+                                value = viewModel.confirmPassword.value,
+                                onValueChange = { viewModel.updateConfirmPassword(it) },
+                                label = { Text(stringResource(R.string.confirm_new_password_label)) },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = BorderColor
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(22.dp))
+                            Button(
+                                onClick = { viewModel.verifyCode() },
+                                enabled = !viewModel.isLoading.value,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                                shape = RoundedCornerShape(25.dp)
+                            ) {
+                                if (viewModel.isLoading.value) {
+                                    CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.White, strokeWidth = 2.dp)
+                                } else {
+                                    Text(stringResource(R.string.reset_password_button), fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.forgot_resend_code),
+                                fontSize = 13.sp,
+                                color = Primary,
+                                modifier = Modifier.clickable { viewModel.sendCode() }
+                            )
+                        }
+
+                        3 -> {
+                            Text(
+                                text = stringResource(R.string.forgot_success_message),
+                                fontSize = 15.sp,
+                                color = Success
+                            )
+                            Spacer(modifier = Modifier.height(22.dp))
+                            Button(
+                                onClick = { onNavigateBack() },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                                shape = RoundedCornerShape(25.dp)
+                            ) {
+                                Text(stringResource(R.string.back_to_login), fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    if (viewModel.errorMessage.value.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(text = viewModel.errorMessage.value, fontSize = 13.sp, color = Error)
+                    }
+                    if (viewModel.message.value.isNotEmpty() && step != 3) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(text = viewModel.message.value, fontSize = 13.sp, color = Success)
                     }
                 }
             }

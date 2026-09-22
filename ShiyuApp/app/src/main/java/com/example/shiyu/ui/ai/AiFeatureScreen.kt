@@ -40,6 +40,19 @@ fun AiFeatureScreen(
         "meal_plan" -> stringResource(R.string.ai_meal_plan_hint)
         "nutrition" -> stringResource(R.string.ai_nutrition_hint)
         "leftover" -> stringResource(R.string.ai_leftover_hint)
+        "semantic_search" -> stringResource(R.string.ai_semantic_search_hint)
+        "recipe_assist" -> stringResource(R.string.ai_recipe_assist_hint)
+        "inventory_advisor" -> stringResource(R.string.ai_inventory_advisor_hint)
+        "inventory_predict" -> stringResource(R.string.ai_inventory_predict_hint)
+        "scene_menu" -> stringResource(R.string.ai_scene_menu_hint)
+        "order_analysis" -> stringResource(R.string.ai_order_analysis_hint)
+        "data_insight" -> stringResource(R.string.ai_data_insight_hint)
+        "copywriting" -> stringResource(R.string.ai_copywriting_hint)
+        "smart_schedule" -> stringResource(R.string.ai_smart_schedule_hint)
+        "trend_predict" -> stringResource(R.string.ai_trend_predict_hint)
+        "menu_analysis" -> stringResource(R.string.ai_menu_analysis_hint)
+        "smart_order" -> stringResource(R.string.ai_smart_order_hint)
+        "user_profile" -> stringResource(R.string.ai_user_profile_hint)
         else -> stringResource(R.string.ai_default_hint)
     }
 
@@ -102,6 +115,58 @@ fun AiFeatureScreen(
                                 }
                                 "leftover" -> {
                                     val res = ApiClient.backendApi.aiLeftover(mapOf("message" to input))
+                                    res.data
+                                }
+                                "semantic_search" -> {
+                                    val res = ApiClient.backendApi.aiSemanticSearch(mapOf("message" to input))
+                                    res.data
+                                }
+                                "recipe_assist" -> {
+                                    val res = ApiClient.backendApi.aiRecipeAssist(mapOf("message" to input))
+                                    res.data
+                                }
+                                "inventory_advisor" -> {
+                                    val res = ApiClient.backendApi.aiInventoryAdvisor(mapOf("message" to input))
+                                    res.data
+                                }
+                                "inventory_predict" -> {
+                                    val res = ApiClient.backendApi.aiInventoryPredict(mapOf("message" to input))
+                                    res.data
+                                }
+                                "scene_menu" -> {
+                                    val res = ApiClient.backendApi.aiSceneMenu(mapOf("message" to input))
+                                    res.data
+                                }
+                                "order_analysis" -> {
+                                    val res = ApiClient.backendApi.aiOrderAnalysis(mapOf("message" to input))
+                                    res.data
+                                }
+                                "data_insight" -> {
+                                    val res = ApiClient.backendApi.aiDataInsight(mapOf("message" to input))
+                                    res.data
+                                }
+                                "copywriting" -> {
+                                    val res = ApiClient.backendApi.aiCopywriting(mapOf("message" to input))
+                                    res.data
+                                }
+                                "smart_schedule" -> {
+                                    val res = ApiClient.backendApi.aiSmartSchedule(mapOf("message" to input))
+                                    res.data
+                                }
+                                "trend_predict" -> {
+                                    val res = ApiClient.backendApi.aiTrendPredict(mapOf("message" to input))
+                                    res.data
+                                }
+                                "menu_analysis" -> {
+                                    val res = ApiClient.backendApi.aiMenuAnalysis(mapOf("message" to input))
+                                    res.data
+                                }
+                                "smart_order" -> {
+                                    val res = ApiClient.backendApi.aiSmartOrder(mapOf("message" to input))
+                                    res.data
+                                }
+                                "user_profile" -> {
+                                    val res = ApiClient.backendApi.aiUserProfile(mapOf("message" to input))
                                     res.data
                                 }
                                 else -> null

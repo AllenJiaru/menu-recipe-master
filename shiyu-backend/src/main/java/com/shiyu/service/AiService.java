@@ -18,6 +18,26 @@ public interface AiService {
     AiResponse cookingQA(String question);
     AiResponse healthReport(String userId);
     AiResponse translateRecipe(AiTranslationRequest request);
+
+    // P0 新增
+    AiResponse semanticSearch(AiRequest request);
+    AiResponse smartOrder(AiRequest request);
+    AiResponse recipeAssist(AiRequest request);
+    AiResponse inventoryAdvisor(AiRequest request);
+
+    // P1 新增
+    AiResponse inventoryPredict(AiRequest request);
+    AiResponse sceneMenu(AiRequest request);
+    AiResponse dataInsight(AiRequest request);
+    AiResponse copywriting(AiRequest request);
+
+    // P2 新增
+    AiResponse smartSchedule(AiRequest request);
+    AiResponse userProfile(AiRequest request);
+    AiResponse trendPredict(AiRequest request);
+    AiResponse menuAnalysis(AiRequest request);
+    AiResponse orderAnalysis(AiRequest request);
+
     Map<String, Object> getProviderInfo();
     java.util.List<com.shiyu.entity.AiChatSession> listSessions(Long userId);
     com.shiyu.entity.AiChatSession createSession(String title, Long userId);

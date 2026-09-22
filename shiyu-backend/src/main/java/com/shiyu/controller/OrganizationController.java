@@ -4,6 +4,8 @@ import com.shiyu.common.ApiResponse;
 import com.shiyu.entity.Organization;
 import com.shiyu.entity.OrganizationInvite;
 import com.shiyu.service.OrganizationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +14,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/organizations")
+@Tag(name = "组织管理", description = "组织层级、成员管理、邀请")
 public class OrganizationController {
 
     @Autowired
     private OrganizationService organizationService;
 
+    @Operation(summary = "查询用户所属组织", description = "获取当前用户所属的所有组织列表")
     @GetMapping
     public ApiResponse<List<Organization>> getUserOrganizations(Authentication auth) {
         Long userId = getUserId(auth);
@@ -25,26 +29,31 @@ public class OrganizationController {
 
     // ===== 机构管理 =====
 
+    @Operation(summary = "查询组织树", description = "获取完整的组织层级树结构")
     @GetMapping("/tree")
     public ApiResponse<List<Map<String, Object>>> getOrganizationTree() {
         return ApiResponse.success(organizationService.getOrganizationTree());
     }
 
+    @Operation(summary = "按类型查询组织", description = "根据组织类型筛选组织列表")
     @GetMapping("/by-type")
     public ApiResponse<List<Organization>> getOrganizationsByType(@RequestParam String type) {
         return ApiResponse.success(organizationService.getOrganizationsByType(type));
     }
 
+    @Operation(summary = "搜索组织", description = "根据关键词搜索组织")
     @GetMapping("/search")
     public ApiResponse<List<Organization>> searchOrganizations(@RequestParam String keyword) {
         return ApiResponse.success(organizationService.searchOrganizations(keyword));
     }
 
+    @Operation(summary = "查询子组织", description = "获取指定组织的子组织列表")
     @GetMapping("/{id}/children")
     public ApiResponse<List<Map<String, Object>>> getOrganizationChildren(@PathVariable Long id) {
         return ApiResponse.success(organizationService.getOrganizationChildren(id));
     }
 
+    @Operation(summary = "查询组织详情", description = "根据ID查询组织详细信息")
     @GetMapping("/{id}")
     public ApiResponse<Organization> getOrganization(@PathVariable Long id) {
         Organization org = organizationService.getOrganization(id);
@@ -52,12 +61,14 @@ public class OrganizationController {
         return ApiResponse.success(org);
     }
 
+    @Operation(summary = "创建组织", description = "新增组织")
     @PostMapping
     public ApiResponse<Organization> createOrganization(@RequestBody Organization org, Authentication auth) {
         Long userId = getUserId(auth);
         return ApiResponse.success(organizationService.createOrganization(org, userId));
     }
 
+    @Operation(summary = "更新组织", description = "修改组织信息（需管理员权限）")
     @PutMapping("/{id}")
     public ApiResponse<Organization> updateOrganization(
             @PathVariable Long id,
@@ -70,6 +81,7 @@ public class OrganizationController {
         return ApiResponse.success(organizationService.updateOrganization(id, org));
     }
 
+    @Operation(summary = "删除组织", description = "删除组织（仅所有者可操作）")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteOrganization(@PathVariable Long id, Authentication auth) {
         Long userId = getUserId(auth);
@@ -82,11 +94,13 @@ public class OrganizationController {
 
     // ===== 成员管理 =====
 
+    @Operation(summary = "查询组织成员", description = "获取指定组织的成员列表")
     @GetMapping("/{id}/members")
     public ApiResponse<List<Map<String, Object>>> getMembers(@PathVariable Long id) {
         return ApiResponse.success(organizationService.getMembersWithDetails(id));
     }
 
+    @Operation(summary = "添加组织成员", description = "向组织添加新成员（需管理员权限）")
     @PostMapping("/{id}/members")
     public ApiResponse<Void> addMember(
             @PathVariable Long id,
@@ -103,6 +117,7 @@ public class OrganizationController {
         return ApiResponse.success(null);
     }
 
+    @Operation(summary = "移除组织成员", description = "从组织中移除成员（需管理员权限）")
     @DeleteMapping("/{id}/members/{userId}")
     public ApiResponse<Void> removeMember(
             @PathVariable Long id,
@@ -116,6 +131,7 @@ public class OrganizationController {
         return ApiResponse.success(null);
     }
 
+    @Operation(summary = "修改成员角色", description = "修改组织成员角色（仅所有者可操作）")
     @PutMapping("/{id}/members/{userId}/role")
     public ApiResponse<Void> updateMemberRole(
             @PathVariable Long id,
@@ -132,6 +148,7 @@ public class OrganizationController {
 
     // ===== 用户搜索 =====
 
+    @Operation(summary = "搜索可添加用户", description = "搜索尚未加入该组织的用户")
     @GetMapping("/{id}/search-users")
     public ApiResponse<List<Map<String, Object>>> searchUsers(
             @PathVariable Long id,
@@ -146,6 +163,7 @@ public class OrganizationController {
 
     // ===== 邀请管理 =====
 
+    @Operation(summary = "查询邀请记录", description = "获取组织的邀请记录列表")
     @GetMapping("/{id}/invites")
     public ApiResponse<List<OrganizationInvite>> getInvites(@PathVariable Long id, Authentication auth) {
         Long userId = getUserId(auth);
@@ -155,6 +173,7 @@ public class OrganizationController {
         return ApiResponse.success(organizationService.getInvites(id));
     }
 
+    @Operation(summary = "创建邀请", description = "创建组织邀请链接")
     @PostMapping("/{id}/invite")
     public ApiResponse<OrganizationInvite> createInvite(
             @PathVariable Long id,
@@ -169,6 +188,7 @@ public class OrganizationController {
         return ApiResponse.success(organizationService.createInvite(id, userId, role, inviteeUsername));
     }
 
+    @Operation(summary = "通过邀请码加入组织", description = "使用邀请码加入组织")
     @PostMapping("/join")
     public ApiResponse<Map<String, Object>> joinByInviteCode(
             @RequestBody Map<String, String> body,
@@ -187,6 +207,7 @@ public class OrganizationController {
 
     // ===== 统计 =====
 
+    @Operation(summary = "查询组织统计", description = "获取组织统计数据")
     @GetMapping("/{id}/stats")
     public ApiResponse<Map<String, Object>> getOrgStats(@PathVariable Long id, Authentication auth) {
         Long userId = getUserId(auth);
@@ -198,12 +219,14 @@ public class OrganizationController {
 
     // ===== 工具方法 =====
 
+    @Operation(summary = "检查是否为成员", description = "检查当前用户是否为指定组织成员")
     @GetMapping("/{id}/check-member")
     public ApiResponse<Boolean> checkMember(@PathVariable Long id, Authentication auth) {
         Long userId = getUserId(auth);
         return ApiResponse.success(organizationService.isMember(id, userId));
     }
 
+    @Operation(summary = "获取当前组织ID", description = "获取当前用户所在组织的ID")
     @GetMapping("/current")
     public ApiResponse<Long> getCurrentOrgId(Authentication auth) {
         Long userId = getUserId(auth);

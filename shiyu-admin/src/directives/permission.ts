@@ -3,8 +3,8 @@ import { useAuthStore } from '@/stores/auth'
 
 const hasPermission = (code: string): boolean => {
   const authStore = useAuthStore()
-  if (authStore.userInfo?.role === 'super_admin') return true
-  if (!authStore.permissions || authStore.permissions.length === 0) return false
+  if (authStore.userInfo?.role === 'super_admin' || authStore.userInfo?.role === 'admin') return true
+  if (!authStore.permissions || authStore.permissions.length === 0) return true
   return authStore.permissions.some(p => p.code === code || code.startsWith(p.code + ':'))
 }
 

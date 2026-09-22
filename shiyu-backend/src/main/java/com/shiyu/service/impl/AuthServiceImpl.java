@@ -5,14 +5,17 @@ import com.shiyu.common.BusinessException;
 import com.shiyu.dto.request.LoginRequest;
 import com.shiyu.dto.request.RegisterRequest;
 import com.shiyu.dto.response.LoginResponse;
+import com.shiyu.entity.EmailVerification;
 import com.shiyu.entity.SysRole;
 import com.shiyu.entity.SysUserRole;
 import com.shiyu.entity.User;
+import com.shiyu.mapper.EmailVerificationMapper;
 import com.shiyu.mapper.SysRoleMapper;
 import com.shiyu.mapper.SysUserRoleMapper;
 import com.shiyu.mapper.UserMapper;
 import com.shiyu.security.UserDetailsImpl;
 import com.shiyu.service.AuthService;
+import com.shiyu.service.EmailService;
 import com.shiyu.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,11 +45,17 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailVerificationMapper emailVerificationMapper;
+
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public LoginResponse login(LoginRequest request) {
-        User user = userMapper.findByUsername(request.getUsername());
+        User user = userMapper.findByUsernameOrEmail(request.getUsername());
         if (user == null) {
-            throw new BusinessException("Username or password incorrect");
+            throw new BusinessException("用户名或密码错误");
         }
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BusinessException("Username or password incorrect");
@@ -83,7 +92,13 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse register(RegisterRequest request) {
         User existing = userMapper.findByUsername(request.getUsername());
         if (existing != null) {
-            throw new BusinessException("Username already exists");
+            throw new BusinessException("用户名已存在");
+        }
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            User emailUser = userMapper.findByEmail(request.getEmail());
+            if (emailUser != null) {
+                throw new BusinessException("该邮箱已被注册");
+            }
         }
 
         User user = new User();
@@ -91,6 +106,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setNickname(request.getNickname() != null ? request.getNickname() : request.getUsername());
         user.setRole(request.getRole() != null ? request.getRole() : "user");
+        user.setEmail(request.getEmail() != null ? request.getEmail() : null);
         user.setStatus(1);
         user.setLoginCount(0);
         user.setDeleted(0);
@@ -177,5 +193,52 @@ public class AuthServiceImpl implements AuthService {
             userRole.setCreateTime(LocalDateTime.now());
             sysUserRoleMapper.insert(userRole);
         }
+    }
+
+    @Override
+    public void sendResetCode(String username) {
+        User user = userMapper.findByUsernameOrEmail(username);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new BusinessException("该用户未绑定邮箱，无法发送验证码");
+        }
+
+        // 生成6位随机验证码
+        String code = String.format("%06d", (int) (Math.random() * 1000000));
+
+        // 保存验证码记录
+        EmailVerification verification = new EmailVerification();
+        verification.setUsername(username);
+        verification.setEmail(user.getEmail());
+        verification.setCode(code);
+        verification.setPurpose("reset_password");
+        verification.setUsed(0);
+        verification.setExpireTime(LocalDateTime.now().plusMinutes(5));
+        emailVerificationMapper.insert(verification);
+
+        // 发送邮件
+        emailService.sendVerificationCode(user.getEmail(), code, "reset_password");
+    }
+
+    @Override
+    public void verifyAndResetPassword(String username, String code, String newPassword) {
+        User user = userMapper.findByUsernameOrEmail(username);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+
+        EmailVerification verification = emailVerificationMapper.findValidCode(username, code, "reset_password");
+        if (verification == null) {
+            throw new BusinessException("验证码无效或已过期");
+        }
+
+        // 标记验证码已使用
+        emailVerificationMapper.markUsed(verification.getId());
+
+        // 重置密码
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.updateById(user);
     }
 }
