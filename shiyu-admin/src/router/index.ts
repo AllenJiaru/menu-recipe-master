@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { findPermissionCodeForPath } from '@/utils/permissions'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -84,13 +86,24 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const token = localStorage.getItem('token')
   if (to.meta.requiresAuth !== false && !token) {
     next('/login')
-  } else {
-    next()
+    return
   }
+  if (token) {
+    const auth = useAuthStore()
+    if (!auth.permissionsLoaded) {
+      await auth.loadPermissions()
+    }
+    const code = findPermissionCodeForPath(to.path)
+    if (code && !auth.hasPermission(code)) {
+      next('/dashboard')
+      return
+    }
+  }
+  next()
 })
 
 export default router

@@ -35,9 +35,9 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Override
     public PageResponse<Map<String, Object>> getUsersWithRoles(int page, int size, String keyword) {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(StringUtils.hasText(keyword), User::getUsername, keyword)
-                .or()
-                .like(StringUtils.hasText(keyword), User::getNickname, keyword);
+        if (StringUtils.hasText(keyword)) {
+            wrapper.and(w -> w.like(User::getUsername, keyword).or().like(User::getNickname, keyword));
+        }
         wrapper.orderByDesc(User::getCreateTime);
 
         Page<User> pageResult = userMapper.selectPage(new Page<>(page, size), wrapper);
@@ -80,6 +80,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         }
 
         sysUserRoleMapper.deleteByUserId(userId);
+        String primaryRoleCode = null;
         if (roleIds != null && !roleIds.isEmpty()) {
             for (Long roleId : roleIds) {
                 SysRole role = sysRoleMapper.selectById(roleId);
@@ -91,7 +92,15 @@ public class UserManagementServiceImpl implements UserManagementService {
                 ur.setRoleId(roleId);
                 ur.setCreateTime(LocalDateTime.now());
                 sysUserRoleMapper.insert(ur);
+                if (primaryRoleCode == null) {
+                    primaryRoleCode = role.getCode();
+                }
             }
+        }
+        // 同步回 sys_user.role，保持 JWT 角色与 RBAC 一致
+        if (primaryRoleCode != null && !primaryRoleCode.equals(user.getRole())) {
+            user.setRole(primaryRoleCode);
+            userMapper.updateById(user);
         }
     }
 

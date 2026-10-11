@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.response.StatisticsResponse;
 import com.shiyu.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ public class StatisticsController {
     private StatisticsService statisticsService;
 
     @GetMapping("/orders")
+    @PreAuthorize("hasAuthority('system:statistics')")
     public ApiResponse<StatisticsResponse> getOrderStats(
             @RequestParam(required = false) Long coupleId,
             @RequestParam(required = false) String startDate,

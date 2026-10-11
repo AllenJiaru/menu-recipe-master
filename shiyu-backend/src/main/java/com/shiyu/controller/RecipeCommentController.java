@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.request.CommentRequest;
 import com.shiyu.dto.response.PageResponse;
 import com.shiyu.entity.RecipeComment;
@@ -27,6 +28,7 @@ public class RecipeCommentController {
     }
 
     @GetMapping("/recipe/{recipeId}")
+    @PreAuthorize("hasAuthority('content:review')")
     public ApiResponse<PageResponse<RecipeComment>> getComments(
             @PathVariable Long recipeId,
             @RequestParam(defaultValue = "1") int page,
@@ -35,6 +37,7 @@ public class RecipeCommentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('content:review')")
     public ApiResponse<Void> addComment(@Valid @RequestBody CommentRequest request) {
         User user = getCurrentUser();
         recipeCommentService.addComment(request, user.getId(), user.getUsername(), user.getNickname(), user.getAvatar());
@@ -42,6 +45,7 @@ public class RecipeCommentController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('content:review')")
     public ApiResponse<Void> deleteComment(@PathVariable Long id) {
         User user = getCurrentUser();
         recipeCommentService.deleteComment(id, user.getId());
@@ -49,6 +53,7 @@ public class RecipeCommentController {
     }
 
     @GetMapping("/stats/{recipeId}")
+    @PreAuthorize("hasAuthority('content:review')")
     public ApiResponse<Map<String, Object>> getCommentStats(@PathVariable Long recipeId) {
         return ApiResponse.success(recipeCommentService.getCommentStats(recipeId));
     }

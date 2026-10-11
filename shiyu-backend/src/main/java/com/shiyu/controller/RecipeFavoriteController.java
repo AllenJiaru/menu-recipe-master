@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.response.PageResponse;
 import com.shiyu.entity.RecipeFavorite;
 import com.shiyu.entity.User;
@@ -25,6 +26,7 @@ public class RecipeFavoriteController {
     }
 
     @PostMapping("/toggle")
+    @PreAuthorize("hasAuthority('content:favorite:toggle')")
     public ApiResponse<Void> toggleFavorite(@RequestBody Map<String, Object> body) {
         User user = getCurrentUser();
         Long recipeId = Long.valueOf(body.get("recipeId").toString());
@@ -35,6 +37,7 @@ public class RecipeFavoriteController {
     }
 
     @GetMapping("/check/{recipeId}")
+    @PreAuthorize("hasAuthority('content:favorite')")
     public ApiResponse<Map<String, Boolean>> checkFavorite(@PathVariable Long recipeId) {
         User user = getCurrentUser();
         boolean favorited = recipeFavoriteService.isFavorited(user.getId(), recipeId);
@@ -42,6 +45,7 @@ public class RecipeFavoriteController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('content:favorite')")
     public ApiResponse<PageResponse<RecipeFavorite>> getUserFavorites(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {

@@ -2,6 +2,7 @@ package com.shiyu.controller;
 
 import com.shiyu.annotation.OperationLog;
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.request.BatchRequest;
 import com.shiyu.dto.request.RecipeCreateRequest;
 import com.shiyu.dto.request.RecipeUpdateRequest;
@@ -29,6 +30,7 @@ public class RecipeController {
     @OperationLog(action = "QUERY", target = "菜谱")
     @Operation(summary = "查询菜谱列表", description = "分页查询菜谱，支持分类、关键词、难度、情侣、状态筛选")
     @GetMapping
+    @PreAuthorize("hasAuthority('content:recipe')")
     public ApiResponse<PageResponse<Recipe>> getRecipes(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -43,6 +45,7 @@ public class RecipeController {
     @OperationLog(action = "QUERY", target = "菜谱")
     @Operation(summary = "查询菜谱详情", description = "根据ID查询菜谱详细信息")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('content:recipe')")
     public ApiResponse<Recipe> getRecipeById(@PathVariable Long id) {
         return ApiResponse.success(recipeService.getRecipeById(id));
     }
@@ -50,6 +53,7 @@ public class RecipeController {
     @OperationLog(action = "CREATE", target = "菜谱")
     @Operation(summary = "创建菜谱", description = "新增一道菜谱")
     @PostMapping
+    @PreAuthorize("hasAuthority('content:recipe:create')")
     public ApiResponse<Recipe> createRecipe(@Valid @RequestBody RecipeCreateRequest request) {
         return ApiResponse.success(recipeService.createRecipe(request));
     }
@@ -57,6 +61,7 @@ public class RecipeController {
     @OperationLog(action = "UPDATE", target = "菜谱")
     @Operation(summary = "更新菜谱", description = "修改菜谱信息")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('content:recipe:edit')")
     public ApiResponse<Recipe> updateRecipe(@PathVariable Long id, @Valid @RequestBody RecipeUpdateRequest request) {
         return ApiResponse.success(recipeService.updateRecipe(id, request));
     }
@@ -64,6 +69,7 @@ public class RecipeController {
     @OperationLog(action = "DELETE", target = "菜谱")
     @Operation(summary = "删除菜谱", description = "根据ID删除菜谱")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('content:recipe:delete')")
     public ApiResponse<Void> deleteRecipe(@PathVariable Long id) {
         recipeService.deleteRecipe(id);
         return ApiResponse.success();
@@ -72,6 +78,7 @@ public class RecipeController {
     @OperationLog(action = "UPDATE", target = "菜谱")
     @Operation(summary = "切换收藏状态", description = "切换菜谱的收藏/取消收藏状态")
     @PutMapping("/{id}/favorite")
+    @PreAuthorize("hasAuthority('content:favorite:toggle')")
     public ApiResponse<Void> toggleFavorite(@PathVariable Long id) {
         recipeService.updateFavorite(id);
         return ApiResponse.success();
@@ -80,6 +87,7 @@ public class RecipeController {
     @OperationLog(action = "UPDATE", target = "菜谱")
     @Operation(summary = "更新菜谱状态", description = "修改菜谱发布状态")
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasAuthority('content:recipe:edit')")
     public ApiResponse<Void> updateStatus(@PathVariable Long id, @RequestBody Map<String, Integer> body) {
         recipeService.updateStatus(id, body.get("status"));
         return ApiResponse.success();
@@ -88,6 +96,7 @@ public class RecipeController {
     @OperationLog(action = "BATCH_DELETE", target = "菜谱")
     @Operation(summary = "批量删除菜谱", description = "根据ID列表批量删除菜谱")
     @PostMapping("/batch/delete")
+    @PreAuthorize("hasAuthority('content:recipe:delete')")
     public ApiResponse<Void> batchDelete(@RequestBody BatchRequest request) {
         recipeService.batchDelete(request.getIds());
         return ApiResponse.success();
@@ -96,6 +105,7 @@ public class RecipeController {
     @OperationLog(action = "BATCH_UPDATE", target = "菜谱")
     @Operation(summary = "批量更新菜谱状态", description = "根据ID列表批量更新菜谱发布状态")
     @PostMapping("/batch/status")
+    @PreAuthorize("hasAuthority('content:recipe:edit')")
     public ApiResponse<Void> batchUpdateStatus(@RequestBody BatchRequest request) {
         recipeService.batchUpdateStatus(request.getIds(), request.getStatus());
         return ApiResponse.success();
@@ -104,6 +114,7 @@ public class RecipeController {
     @OperationLog(action = "QUERY", target = "菜谱")
     @Operation(summary = "查询菜谱分类", description = "获取所有菜谱分类列表")
     @GetMapping("/categories")
+    @PreAuthorize("hasAuthority('content:recipe')")
     public ApiResponse<List<RecipeCategory>> getCategories() {
         return ApiResponse.success(recipeService.getCategories());
     }
@@ -111,6 +122,7 @@ public class RecipeController {
     @OperationLog(action = "QUERY", target = "菜谱")
     @Operation(summary = "随机推荐菜谱", description = "随机获取指定数量的菜谱推荐")
     @GetMapping("/random")
+    @PreAuthorize("hasAuthority('content:recipe')")
     public ApiResponse<List<Recipe>> getRandomRecipes(
             @RequestParam(defaultValue = "6") int count,
             @RequestParam(required = false) Long coupleId) {

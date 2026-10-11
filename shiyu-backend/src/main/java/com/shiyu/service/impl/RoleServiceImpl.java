@@ -40,13 +40,23 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public PageResponse<SysRole> getRoles(int page, int size, String keyword, Integer status) {
         LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(StringUtils.hasText(keyword), SysRole::getName, keyword)
-                .or()
-                .like(StringUtils.hasText(keyword), SysRole::getCode, keyword);
+        if (StringUtils.hasText(keyword)) {
+            wrapper.and(w -> w.like(SysRole::getName, keyword).or().like(SysRole::getCode, keyword));
+        }
         wrapper.eq(status != null, SysRole::getStatus, status);
         wrapper.orderByAsc(SysRole::getSortOrder);
 
         Page<SysRole> pageResult = sysRoleMapper.selectPage(new Page<>(page, size), wrapper);
+        // 填充每个角色的用户数
+        java.util.Map<Long, Long> countMap = new java.util.HashMap<>();
+        for (java.util.Map<String, Object> row : sysUserRoleMapper.countGroupByRole()) {
+            Number roleId = (Number) row.get("roleId");
+            Number cnt = (Number) row.get("cnt");
+            if (roleId != null && cnt != null) {
+                countMap.put(roleId.longValue(), cnt.longValue());
+            }
+        }
+        pageResult.getRecords().forEach(r -> r.setUserCount(countMap.getOrDefault(r.getId(), 0L)));
         return PageResponse.of(pageResult.getRecords(), pageResult.getTotal(), page, size);
     }
 

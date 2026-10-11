@@ -2,6 +2,7 @@ package com.shiyu.controller;
 
 import com.shiyu.annotation.OperationLog;
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.request.SupplierRequest;
 import com.shiyu.dto.response.PageResponse;
 import com.shiyu.entity.Supplier;
@@ -23,6 +24,7 @@ public class SupplierController {
     @OperationLog(action = "QUERY", target = "供应商")
     @Operation(summary = "查询供应商列表", description = "分页查询供应商，支持关键词和分类筛选")
     @GetMapping
+    @PreAuthorize("hasAuthority('business:supplier')")
     public ApiResponse<PageResponse<Supplier>> getSuppliers(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -34,6 +36,7 @@ public class SupplierController {
     @OperationLog(action = "QUERY", target = "供应商")
     @Operation(summary = "查询供应商详情", description = "根据ID查询供应商详细信息")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:supplier')")
     public ApiResponse<Supplier> getSupplierById(@PathVariable Long id) {
         return ApiResponse.success(supplierService.getSupplierById(id));
     }
@@ -41,6 +44,7 @@ public class SupplierController {
     @OperationLog(action = "CREATE", target = "供应商")
     @Operation(summary = "创建供应商", description = "新增供应商信息")
     @PostMapping
+    @PreAuthorize("hasAuthority('business:supplier:create')")
     public ApiResponse<Void> createSupplier(@Valid @RequestBody SupplierRequest request) {
         supplierService.createSupplier(request);
         return ApiResponse.success();
@@ -49,6 +53,7 @@ public class SupplierController {
     @OperationLog(action = "UPDATE", target = "供应商")
     @Operation(summary = "更新供应商", description = "修改供应商信息")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:supplier:edit')")
     public ApiResponse<Void> updateSupplier(@PathVariable Long id, @Valid @RequestBody SupplierRequest request) {
         supplierService.updateSupplier(id, request);
         return ApiResponse.success();
@@ -57,6 +62,7 @@ public class SupplierController {
     @OperationLog(action = "DELETE", target = "供应商")
     @Operation(summary = "删除供应商", description = "根据ID删除供应商")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:supplier:delete')")
     public ApiResponse<Void> deleteSupplier(@PathVariable Long id) {
         supplierService.deleteSupplier(id);
         return ApiResponse.success();

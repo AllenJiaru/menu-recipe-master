@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.service.HealthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,49 +16,58 @@ public class HealthController {
     private HealthService healthService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('logs:health')")
     public ApiResponse<Map<String, Object>> getSystemHealth() {
         return ApiResponse.success(healthService.getSystemHealth());
     }
 
     @GetMapping("/database")
+    @PreAuthorize("hasAuthority('logs:health')")
     public ApiResponse<Map<String, Object>> getDatabaseHealth() {
         return ApiResponse.success(healthService.getDatabaseHealth());
     }
 
     @GetMapping("/disk")
+    @PreAuthorize("hasAuthority('logs:health')")
     public ApiResponse<Map<String, Object>> getDiskHealth() {
         return ApiResponse.success(healthService.getDiskHealth());
     }
 
     @GetMapping("/cache")
+    @PreAuthorize("hasAuthority('logs:health')")
     public ApiResponse<Map<String, Object>> getCacheHealth() {
         return ApiResponse.success(healthService.getCacheHealth());
     }
 
     @PostMapping("/cache/clear")
+    @PreAuthorize("hasAuthority('logs:health:clearcache')")
     public ApiResponse<Void> clearCache() {
         healthService.clearCache();
         return ApiResponse.success();
     }
 
     @PostMapping("/database/optimize")
+    @PreAuthorize("hasAuthority('logs:health:optimize')")
     public ApiResponse<Void> optimizeDatabase() {
         healthService.optimizeDatabase();
         return ApiResponse.success();
     }
 
     @GetMapping("/backups")
+    @PreAuthorize("hasAuthority('logs:health')")
     public ApiResponse<Map<String, Object>> getBackupList() {
         return ApiResponse.success(healthService.getBackupList());
     }
 
     @PostMapping("/backups/create")
+    @PreAuthorize("hasAuthority('logs:health:backup')")
     public ApiResponse<Void> createBackup() {
         healthService.createBackup();
         return ApiResponse.success();
     }
 
     @PostMapping("/backups/{name}/restore")
+    @PreAuthorize("hasAuthority('logs:health:restore')")
     public ApiResponse<Void> restoreBackup(@PathVariable String name) {
         healthService.restoreBackup(name);
         return ApiResponse.success();

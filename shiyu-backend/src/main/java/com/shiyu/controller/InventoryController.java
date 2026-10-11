@@ -2,6 +2,7 @@ package com.shiyu.controller;
 
 import com.shiyu.annotation.OperationLog;
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.request.InventoryRequest;
 import com.shiyu.dto.response.PageResponse;
 import com.shiyu.entity.Inventory;
@@ -25,6 +26,7 @@ public class InventoryController {
     @OperationLog(action = "QUERY", target = "库存")
     @Operation(summary = "查询库存列表", description = "分页查询食材库存，支持关键词和分类筛选")
     @GetMapping
+    @PreAuthorize("hasAuthority('business:inventory')")
     public ApiResponse<PageResponse<Inventory>> getInventory(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -36,6 +38,7 @@ public class InventoryController {
     @OperationLog(action = "QUERY", target = "库存")
     @Operation(summary = "查询库存详情", description = "根据ID查询库存详细信息")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:inventory')")
     public ApiResponse<Inventory> getInventoryById(@PathVariable Long id) {
         return ApiResponse.success(inventoryService.getInventoryById(id));
     }
@@ -43,6 +46,7 @@ public class InventoryController {
     @OperationLog(action = "CREATE", target = "库存")
     @Operation(summary = "创建库存", description = "新增食材库存记录")
     @PostMapping
+    @PreAuthorize("hasAuthority('business:inventory:create')")
     public ApiResponse<Void> createInventory(@Valid @RequestBody InventoryRequest request) {
         inventoryService.createInventory(request);
         return ApiResponse.success();
@@ -51,6 +55,7 @@ public class InventoryController {
     @OperationLog(action = "UPDATE", target = "库存")
     @Operation(summary = "更新库存", description = "修改库存信息")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:inventory:edit')")
     public ApiResponse<Void> updateInventory(@PathVariable Long id, @Valid @RequestBody InventoryRequest request) {
         inventoryService.updateInventory(id, request);
         return ApiResponse.success();
@@ -59,6 +64,7 @@ public class InventoryController {
     @OperationLog(action = "DELETE", target = "库存")
     @Operation(summary = "删除库存", description = "根据ID删除库存记录")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:inventory:delete')")
     public ApiResponse<Void> deleteInventory(@PathVariable Long id) {
         inventoryService.deleteInventory(id);
         return ApiResponse.success();
@@ -67,6 +73,7 @@ public class InventoryController {
     @OperationLog(action = "QUERY", target = "库存")
     @Operation(summary = "查询低库存预警", description = "获取低于预警线的食材列表")
     @GetMapping("/low-stock")
+    @PreAuthorize("hasAuthority('business:inventory')")
     public ApiResponse<List<Inventory>> getLowStockItems() {
         return ApiResponse.success(inventoryService.getLowStockItems());
     }
@@ -74,6 +81,7 @@ public class InventoryController {
     @OperationLog(action = "UPDATE", target = "库存")
     @Operation(summary = "补货", description = "为指定食材补货并更新库存数量")
     @PutMapping("/{id}/restock")
+    @PreAuthorize("hasAuthority('business:inventory:restock')")
     public ApiResponse<Void> restock(@PathVariable Long id, @RequestParam Double quantity) {
         inventoryService.restock(id, quantity);
         return ApiResponse.success();

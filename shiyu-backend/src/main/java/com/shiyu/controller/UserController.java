@@ -8,6 +8,7 @@ import com.shiyu.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "用户管理", description = "用户 CRUD、角色分配")
 public class UserController {
 

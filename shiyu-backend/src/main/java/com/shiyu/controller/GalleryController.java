@@ -2,6 +2,7 @@ package com.shiyu.controller;
 
 import com.shiyu.annotation.OperationLog;
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.response.PageResponse;
 import com.shiyu.entity.GalleryImage;
 import com.shiyu.service.GalleryService;
@@ -21,6 +22,7 @@ public class GalleryController {
 
     @OperationLog(action = "QUERY", target = "相册")
     @GetMapping
+    @PreAuthorize("hasAuthority('content:gallery')")
     public ApiResponse<PageResponse<GalleryImage>> getImages(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -30,12 +32,14 @@ public class GalleryController {
 
     @OperationLog(action = "QUERY", target = "相册")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('content:gallery')")
     public ApiResponse<GalleryImage> getImageById(@PathVariable Long id) {
         return ApiResponse.success(galleryService.getImageById(id));
     }
 
     @OperationLog(action = "CREATE", target = "相册")
     @PostMapping
+    @PreAuthorize("hasAuthority('content:gallery:upload')")
     public ApiResponse<GalleryImage> uploadImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false) String description,
@@ -46,6 +50,7 @@ public class GalleryController {
 
     @OperationLog(action = "UPDATE", target = "相册")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('content:gallery')")
     public ApiResponse<GalleryImage> updateImage(
             @PathVariable Long id,
             @RequestBody Map<String, String> body) {
@@ -54,6 +59,7 @@ public class GalleryController {
 
     @OperationLog(action = "DELETE", target = "相册")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('content:gallery:delete')")
     public ApiResponse<Void> deleteImage(@PathVariable Long id) {
         galleryService.deleteImage(id);
         return ApiResponse.success();
@@ -61,6 +67,7 @@ public class GalleryController {
 
     @OperationLog(action = "BATCH_DELETE", target = "相册")
     @PostMapping("/batch")
+    @PreAuthorize("hasAuthority('content:gallery:delete')")
     public ApiResponse<Void> batchDelete(@RequestBody List<Long> ids) {
         galleryService.batchDelete(ids);
         return ApiResponse.success();

@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.entity.RecipeVersion;
 import com.shiyu.entity.User;
 import com.shiyu.security.UserDetailsImpl;
@@ -25,6 +26,7 @@ public class RecipeVersionController {
     }
 
     @PostMapping("/{recipeId}")
+    @PreAuthorize("hasAuthority('content:recipe:edit')")
     public ApiResponse<Void> saveVersion(@PathVariable Long recipeId, @RequestParam(required = false) String changeNote) {
         User user = getCurrentUser();
         recipeVersionService.saveVersion(recipeId, changeNote, user.getId(), user.getNickname());
@@ -32,16 +34,19 @@ public class RecipeVersionController {
     }
 
     @GetMapping("/{recipeId}")
+    @PreAuthorize("hasAuthority('content:recipe')")
     public ApiResponse<List<RecipeVersion>> getVersionHistory(@PathVariable Long recipeId) {
         return ApiResponse.success(recipeVersionService.getVersionHistory(recipeId));
     }
 
     @GetMapping("/detail/{id}")
+    @PreAuthorize("hasAuthority('content:recipe')")
     public ApiResponse<RecipeVersion> getVersionDetail(@PathVariable Long id) {
         return ApiResponse.success(recipeVersionService.getVersion(id));
     }
 
     @PostMapping("/{id}/restore")
+    @PreAuthorize("hasAuthority('content:recipe:edit')")
     public ApiResponse<Void> restoreVersion(@PathVariable Long id) {
         User user = getCurrentUser();
         recipeVersionService.restoreVersion(id, user.getId(), user.getNickname());

@@ -1011,3 +1011,644 @@ html.dark body, html[data-theme="dark"] body {
   .hljs-literal, .hljs-number { color: #b5cea8; }
   .hljs-attr { color: #9cdcfe; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   ? ULTIMATE VISUAL OVERHAUL — Aurora Glass System
+   霓虹光晕 / 极光渐变 / 毛玻璃 / 动态光效
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Aurora Background Orbs ── */
+body::before {
+  content: '';
+  position: fixed;
+  top: -20%;
+  left: -10%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 800px;
+  max-height: 800px;
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: auroraFloat1 25s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -20%;
+  right: -10%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 700px;
+  max-height: 700px;
+  background: radial-gradient(circle, rgba(175, 82, 222, 0.07) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: auroraFloat2 30s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes auroraFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(8vw, 5vh) scale(1.1); }
+  66% { transform: translate(-3vw, 10vh) scale(0.95); }
+}
+
+@keyframes auroraFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-6vw, -8vh) scale(1.05); }
+  66% { transform: translate(5vw, -4vh) scale(1.1); }
+}
+
+/* ── Animated Gradient Text ── */
+.gradient-text {
+  background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #AF52DE 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ── Glassmorphism Card ── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 122, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+.glass-card:hover {
+  box-shadow:
+    0 16px 48px rgba(0, 122, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  transform: translateY(-4px) !important;
+}
+
+html.dark .glass-card {
+  background: rgba(28, 28, 30, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Enhanced Page Cards with Glow Border ── */
+.page-card,
+.page-table-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+.page-card::before,
+.page-table-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #007AFF, #5856D6, #AF52DE, #FF2D55, #007AFF);
+  background-size: 300% 100%;
+  animation: borderGlow 4s linear infinite;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+
+.page-card:hover::before,
+.page-table-card:hover::before {
+  opacity: 1;
+}
+
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+.page-card:hover,
+.page-table-card:hover {
+  box-shadow:
+    0 12px 40px rgba(0, 122, 255, 0.12),
+    0 0 0 1px rgba(0, 122, 255, 0.15) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ── Glowing Page Header Icons ── */
+.page-header-icon {
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+  transition: all 0.4s ease !important;
+}
+
+.page-header-icon::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: inherit;
+  opacity: 0;
+  filter: blur(12px);
+  z-index: -1;
+  transition: opacity 0.4s ease;
+}
+
+.page-header:hover .page-header-icon::after {
+  opacity: 0.6;
+}
+
+.page-header-icon.blue { box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4); }
+.page-header-icon.green { box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4); }
+.page-header-icon.orange { box-shadow: 0 4px 15px rgba(255, 149, 0, 0.4); }
+.page-header-icon.red { box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); }
+.page-header-icon.purple { box-shadow: 0 4px 15px rgba(175, 82, 222, 0.4); }
+.page-header-icon.indigo { box-shadow: 0 4px 15px rgba(88, 86, 214, 0.4); }
+.page-header-icon.teal { box-shadow: 0 4px 15px rgba(90, 200, 250, 0.4); }
+.page-header-icon.pink { box-shadow: 0 4px 15px rgba(255, 45, 85, 0.4); }
+
+/* ── Enhanced Sidebar Gradient ── */
+.sidebar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 248, 252, 0.98) 100%) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border-right: 1px solid rgba(0, 122, 255, 0.08) !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.dark .sidebar {
+  background: linear-gradient(180deg, rgba(20, 20, 24, 0.95) 0%, rgba(16, 16, 20, 0.98) 100%) !important;
+  border-right-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Active Nav Item Glow */
+.nav-item.active,
+.nav-item-icon.active {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.12) 0%, rgba(88, 86, 214, 0.08) 100%) !important;
+  color: var(--apple-blue) !important;
+  box-shadow: 0 2px 12px rgba(0, 122, 255, 0.15) !important;
+}
+
+.nav-item.active::before {
+  background: linear-gradient(180deg, #007AFF, #5856D6) !important;
+  box-shadow: 0 0 8px rgba(0, 122, 255, 0.5) !important;
+  width: 3px !important;
+  height: 60% !important;
+}
+
+/* ── Enhanced Header ── */
+.header {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: saturate(180%) blur(25px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(25px) !important;
+  border-bottom: 1px solid rgba(0, 122, 255, 0.06) !important;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.dark .header {
+  background: rgba(16, 16, 20, 0.85) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.header-action {
+  position: relative;
+  overflow: hidden;
+}
+
+.header-action::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(175, 82, 222, 0.08));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.header-action:hover::before {
+  opacity: 1;
+}
+
+.header-action:hover {
+  background: rgba(0, 122, 255, 0.08) !important;
+  color: var(--apple-blue) !important;
+  transform: translateY(-1px);
+}
+
+/* User Avatar Ring */
+.user-avatar-wrap {
+  position: relative;
+}
+
+.user-avatar-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #007AFF, #5856D6, #AF52DE, #FF2D55, #FF9500, #34C759, #007AFF);
+  z-index: -1;
+  animation: avatarRingSpin 8s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.user-profile:hover .user-avatar-wrap::after {
+  opacity: 1;
+}
+
+@keyframes avatarRingSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Animated Stat Cards ── */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.stat-card:hover::before {
+  opacity: 0.6;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow:
+    0 20px 40px rgba(0, 122, 255, 0.12),
+    0 0 0 1px rgba(0, 122, 255, 0.1) !important;
+}
+
+.stat-card .stat-icon {
+  transition: all 0.4s ease !important;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg) !important;
+  box-shadow: 0 6px 20px currentColor;
+}
+
+.stat-card .stat-value {
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-card:hover .stat-value {
+  background: linear-gradient(135deg, #007AFF, #5856D6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+html.dark .stat-card {
+  background: rgba(28, 28, 30, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Enhanced Chart Cards ── */
+.chart-card {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  transition: all 0.4s ease !important;
+}
+
+.chart-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 122, 255, 0.1) !important;
+}
+
+html.dark .chart-card {
+  background: rgba(28, 28, 30, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Welcome Banner Animated ── */
+.welcome-banner {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #AF52DE 100%) !important;
+  background-size: 200% 200% !important;
+  animation: gradientShift 8s ease-in-out infinite !important;
+}
+
+.welcome-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  animation: bannerRotate 20s linear infinite;
+}
+
+@keyframes bannerRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Enhanced Buttons with Glow ── */
+.el-button--primary:not(.is-text):not(.is-link) {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3) !important;
+}
+
+.el-button--primary:not(.is-text):not(.is-link)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.el-button--primary:not(.is-text):not(.is-link):hover::before {
+  left: 100%;
+}
+
+.el-button--primary:not(.is-text):not(.is-link):hover {
+  box-shadow: 0 6px 25px rgba(0, 122, 255, 0.45) !important;
+  transform: translateY(-2px) !important;
+}
+
+.el-button--success:not(.is-text):not(.is-link) {
+  box-shadow: 0 4px 15px rgba(52, 199, 89, 0.3) !important;
+}
+.el-button--success:not(.is-text):not(.is-link):hover {
+  box-shadow: 0 6px 25px rgba(52, 199, 89, 0.45) !important;
+}
+
+.el-button--warning:not(.is-text):not(.is-link) {
+  box-shadow: 0 4px 15px rgba(255, 149, 0, 0.3) !important;
+}
+.el-button--warning:not(.is-text):not(.is-link):hover {
+  box-shadow: 0 6px 25px rgba(255, 149, 0, 0.45) !important;
+}
+
+.el-button--danger:not(.is-text):not(.is-link) {
+  box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3) !important;
+}
+.el-button--danger:not(.is-text):not(.is-link):hover {
+  box-shadow: 0 6px 25px rgba(255, 59, 48, 0.45) !important;
+}
+
+/* ── Enhanced Inputs with Focus Glow ── */
+.el-input__wrapper.is-focus {
+  box-shadow:
+    0 0 0 2px rgba(0, 122, 255, 0.4),
+    0 0 20px rgba(0, 122, 255, 0.15) !important;
+  border-color: transparent !important;
+}
+
+.el-textarea__inner:focus {
+  box-shadow:
+    0 0 0 2px rgba(0, 122, 255, 0.4),
+    0 0 20px rgba(0, 122, 255, 0.15) !important;
+}
+
+/* ── Table Row Hover Glow ── */
+.el-table__body tr {
+  transition: all 0.3s ease !important;
+}
+
+.el-table__body tr:hover > td {
+  background: linear-gradient(90deg, rgba(0, 122, 255, 0.04), rgba(88, 86, 214, 0.03)) !important;
+}
+
+/* ── Tag Glow Effect ── */
+.el-tag {
+  position: relative;
+  overflow: hidden;
+}
+
+.el-tag--dark {
+  &.el-tag--primary { box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2); }
+  &.el-tag--success { box-shadow: 0 2px 8px rgba(52, 199, 89, 0.2); }
+  &.el-tag--warning { box-shadow: 0 2px 8px rgba(255, 149, 0, 0.2); }
+  &.el-tag--danger { box-shadow: 0 2px 8px rgba(255, 59, 48, 0.2); }
+}
+
+/* ── Badge Pulse Animation ── */
+.el-badge__content {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* ── Dialog Glass Effect ── */
+.el-dialog {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(40px) !important;
+  -webkit-backdrop-filter: blur(40px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 122, 255, 0.08) !important;
+}
+
+html.dark .el-dialog {
+  background: rgba(24, 24, 28, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Dropdown Glass ── */
+.el-dropdown-menu {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+html.dark .el-dropdown-menu {
+  background: rgba(24, 24, 28, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Page Toolbar Glass ── */
+.page-toolbar {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+html.dark .page-toolbar {
+  background: rgba(28, 28, 30, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Skeleton Loading Shimmer ── */
+.skeleton-shimmer {
+  background: linear-gradient(90deg,
+    var(--bg-page) 25%,
+    rgba(0, 122, 255, 0.08) 50%,
+    var(--bg-page) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Floating Animation ── */
+.float-animation {
+  animation: floatY 6s ease-in-out infinite;
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ── Glow Pulse ── */
+.glow-pulse {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(0, 122, 255, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(0, 122, 255, 0.6), 0 0 50px rgba(88, 86, 214, 0.3); }
+}
+
+/* ── Neon Border ── */
+.neon-border {
+  position: relative;
+}
+
+.neon-border::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #007AFF, #5856D6, #AF52DE, #FF2D55, #007AFF);
+  background-size: 300% 300%;
+  z-index: -1;
+  animation: borderGlow 4s linear infinite;
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 0.4s ease;
+}
+
+.neon-border:hover::after {
+  opacity: 0.7;
+}
+
+/* ── Sparkle Effect for Icons ── */
+.sparkle {
+  position: relative;
+  display: inline-block;
+}
+
+.sparkle::after {
+  content: '?';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 10px;
+  animation: sparkleRotate 2s ease-in-out infinite;
+}
+
+@keyframes sparkleRotate {
+  0%, 100% { transform: rotate(0deg) scale(1); opacity: 1; }
+  50% { transform: rotate(180deg) scale(1.2); opacity: 0.7; }
+}
+
+/* ── Enhanced Scrollbar with Glow ── */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(0, 122, 255, 0.6), rgba(88, 86, 214, 0.6)) !important;
+  border-radius: 999px !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(0, 122, 255, 0.9), rgba(88, 86, 214, 0.9)) !important;
+  box-shadow: 0 0 10px rgba(0, 122, 255, 0.4) !important;
+}
+
+/* ── Main Content Background Gradient ── */
+.main-content {
+  background: linear-gradient(135deg, rgba(245, 245, 247, 0.5) 0%, rgba(240, 240, 245, 0.8) 100%) !important;
+}
+
+html.dark .main-content {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(10, 10, 14, 0.6) 100%) !important;
+}
+
+/* ── Page Transition Enhancement ── */
+.page-enter-active {
+  animation: pageSlideIn 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ── Card Stagger Animation ── */
+.stagger-children > * {
+  animation: cardFadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) backwards !important;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) rotateX(-10deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+/* ── Interactive Hover Lift ── */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+}

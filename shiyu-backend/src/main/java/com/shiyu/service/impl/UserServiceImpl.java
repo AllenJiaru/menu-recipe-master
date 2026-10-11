@@ -1,6 +1,7 @@
 package com.shiyu.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shiyu.common.BusinessException;
 import com.shiyu.dto.response.PageResponse;
@@ -47,9 +48,9 @@ public class UserServiceImpl implements UserService {
         size = size == null ? 10 : size;
 
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(StringUtils.hasText(keyword), User::getUsername, keyword)
-                .or()
-                .like(StringUtils.hasText(keyword), User::getNickname, keyword);
+        if (StringUtils.hasText(keyword)) {
+            wrapper.and(w -> w.like(User::getUsername, keyword).or().like(User::getNickname, keyword));
+        }
         wrapper.eq(StringUtils.hasText(role), User::getRole, role);
         wrapper.eq(organizationId != null, User::getOrganizationId, organizationId);
         wrapper.orderByDesc(User::getCreateTime);
@@ -93,13 +94,35 @@ public class UserServiceImpl implements UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         user.setId(id);
-        userMapper.updateById(user);
+        // organizationId 为 null 时需显式清除（updateById 默认跳过 null 字段）
+        boolean clearOrg = user.getOrganizationId() == null && existing.getOrganizationId() != null;
+        // 无其他可更新字段时跳过 updateById（避免生成无 SET 子句的 SQL）
+        boolean hasOtherFields = StringUtils.hasText(user.getPassword())
+                || user.getNickname() != null || user.getEmail() != null || user.getPhone() != null
+                || user.getAvatar() != null || user.getRole() != null || user.getStatus() != null;
+        if (hasOtherFields) {
+            userMapper.updateById(user);
+        }
+        if (clearOrg) {
+            LambdaUpdateWrapper<User> clearWrapper = new LambdaUpdateWrapper<>();
+            clearWrapper.eq(User::getId, id).set(User::getOrganizationId, null);
+            userMapper.update(null, clearWrapper);
+            organizationMemberMapper.delete(new LambdaQueryWrapper<OrganizationMember>()
+                    .eq(OrganizationMember::getUserId, id));
+        }
+        // 角色变更时同步 RBAC 关联
+        if (StringUtils.hasText(user.getRole()) && !user.getRole().equals(existing.getRole())) {
+            syncUserRole(id, user.getRole());
+        }
         // 同步组织成员关系
-        syncOrganizationMember(id, user.getOrganizationId(), user.getRole());
+        if (!clearOrg) {
+            syncOrganizationMember(id, user.getOrganizationId(), user.getRole() != null ? user.getRole() : existing.getRole());
+        }
         return userMapper.selectById(id);
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         User existing = userMapper.selectById(id);
         if (existing == null) {
@@ -109,6 +132,8 @@ public class UserServiceImpl implements UserService {
         // 清理组织成员关系
         organizationMemberMapper.delete(new LambdaQueryWrapper<OrganizationMember>()
                 .eq(OrganizationMember::getUserId, id));
+        // 清理 RBAC 用户角色关联
+        sysUserRoleMapper.deleteByUserId(id);
     }
 
     @Override
@@ -151,6 +176,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void batchUpdateStatus(List<Long> ids, Integer status) {
         for (Long id : ids) {
             User user = userMapper.selectById(id);
@@ -162,11 +188,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void batchDelete(List<Long> ids) {
         for (Long id : ids) {
             userMapper.deleteById(id);
             organizationMemberMapper.delete(new LambdaQueryWrapper<OrganizationMember>()
                     .eq(OrganizationMember::getUserId, id));
+            sysUserRoleMapper.deleteByUserId(id);
         }
     }
 
@@ -180,19 +208,13 @@ public class UserServiceImpl implements UserService {
         if (role == null) {
             return;
         }
-        LambdaQueryWrapper<SysUserRole> urWrapper = new LambdaQueryWrapper<>();
-        urWrapper.eq(SysUserRole::getUserId, userId);
-        SysUserRole existing = sysUserRoleMapper.selectOne(urWrapper);
-        if (existing == null) {
-            SysUserRole userRole = new SysUserRole();
-            userRole.setUserId(userId);
-            userRole.setRoleId(role.getId());
-            userRole.setCreateTime(LocalDateTime.now());
-            sysUserRoleMapper.insert(userRole);
-        } else if (!existing.getRoleId().equals(role.getId())) {
-            existing.setRoleId(role.getId());
-            sysUserRoleMapper.updateById(existing);
-        }
+        // 删除旧关联后重建，避免 selectOne 在多角色时崩溃
+        sysUserRoleMapper.deleteByUserId(userId);
+        SysUserRole userRole = new SysUserRole();
+        userRole.setUserId(userId);
+        userRole.setRoleId(role.getId());
+        userRole.setCreateTime(LocalDateTime.now());
+        sysUserRoleMapper.insert(userRole);
     }
 
     private void syncOrganizationMember(Long userId, Long organizationId, String role) {

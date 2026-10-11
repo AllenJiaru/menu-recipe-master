@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,6 +66,7 @@ public class NoticeController {
     @OperationLog(action = "CREATE", target = "公告")
     @Operation(summary = "创建公告", description = "发布新公告")
     @PostMapping
+    @PreAuthorize("hasAuthority('business:notice:create')")
     public ApiResponse<Void> createNotice(@Valid @RequestBody NoticeRequest request) {
         noticeService.createNotice(request, currentUsername(), currentUserId());
         return ApiResponse.success();
@@ -73,6 +75,7 @@ public class NoticeController {
     @OperationLog(action = "UPDATE", target = "公告")
     @Operation(summary = "更新公告", description = "修改公告内容")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:notice:edit')")
     public ApiResponse<Void> updateNotice(@PathVariable Long id, @Valid @RequestBody NoticeRequest request) {
         noticeService.updateNotice(id, request);
         return ApiResponse.success();
@@ -81,6 +84,7 @@ public class NoticeController {
     @OperationLog(action = "DELETE", target = "公告")
     @Operation(summary = "删除公告", description = "根据ID删除公告")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:notice:delete')")
     public ApiResponse<Void> deleteNotice(@PathVariable Long id) {
         noticeService.deleteNotice(id);
         return ApiResponse.success();
@@ -89,6 +93,7 @@ public class NoticeController {
     @OperationLog(action = "UPDATE", target = "公告")
     @Operation(summary = "发布公告", description = "将公告状态改为已发布")
     @PutMapping("/{id}/publish")
+    @PreAuthorize("hasAuthority('business:notice:publish')")
     public ApiResponse<Void> publishNotice(@PathVariable Long id) {
         noticeService.publishNotice(id);
         return ApiResponse.success();

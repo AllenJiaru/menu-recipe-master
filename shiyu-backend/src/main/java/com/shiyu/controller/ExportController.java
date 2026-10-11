@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.service.RecipeExportService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ public class ExportController {
 
     @Operation(summary = "导出菜谱数据", description = "导出菜谱为CSV格式，支持日期范围筛选")
     @PostMapping("/recipes")
+    @PreAuthorize("hasAuthority('system:export:recipe')")
     public ResponseEntity<byte[]> exportRecipes(
             @RequestParam(defaultValue = "csv") String format,
             @RequestParam(required = false) String startDate,
@@ -32,6 +34,7 @@ public class ExportController {
 
     @Operation(summary = "导出订单数据", description = "导出订单为CSV格式，支持日期范围筛选")
     @PostMapping("/orders")
+    @PreAuthorize("hasAuthority('system:export:order')")
     public ResponseEntity<byte[]> exportOrders(
             @RequestParam(defaultValue = "csv") String format,
             @RequestParam(required = false) String startDate,

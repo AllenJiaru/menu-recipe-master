@@ -10,14 +10,21 @@ import java.util.Collections;
 
 public class UserDetailsImpl implements UserDetails {
     private final User user;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(User user) {
+        this(user, Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + (user.getRole() == null ? "USER" : user.getRole().toUpperCase()))));
+    }
+
+    public UserDetailsImpl(User user, Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
+        this.authorities = authorities;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase()));
+        return authorities;
     }
 
     @Override

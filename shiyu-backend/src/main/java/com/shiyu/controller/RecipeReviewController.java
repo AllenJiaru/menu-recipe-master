@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.request.BatchRequest;
 import com.shiyu.dto.request.ReviewRequest;
 import com.shiyu.dto.response.PageResponse;
@@ -47,6 +48,7 @@ public class RecipeReviewController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('content:review')")
     public ApiResponse<PageResponse<RecipeReview>> getReviews(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -75,12 +77,14 @@ public class RecipeReviewController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('content:review')")
     public ApiResponse<Void> createReview(@Valid @RequestBody ReviewRequest request) {
         buildAndCreate(request.getRecipeId(), request.getStatusValue(), request.getComment());
         return ApiResponse.success();
     }
 
     @PostMapping("/batch")
+    @PreAuthorize("hasAuthority('content:review')")
     public ApiResponse<Void> batchCreateReviews(@RequestBody BatchRequest request) {
         if (request.getIds() == null) {
             return ApiResponse.success();
@@ -97,12 +101,14 @@ public class RecipeReviewController {
     }
 
     @PostMapping("/batch/audit")
+    @PreAuthorize("hasAuthority('business:review:approve')")
     public ApiResponse<Void> batchAudit(@RequestBody BatchRequest request) {
         recipeReviewService.batchAudit(request.getIds(), request.getStatus(), currentReviewerName(), request.getComment());
         return ApiResponse.success();
     }
 
     @PostMapping("/batch/delete")
+    @PreAuthorize("hasAuthority('business:review:approve')")
     public ApiResponse<Void> batchDelete(@RequestBody BatchRequest request) {
         recipeReviewService.batchDelete(request.getIds());
         return ApiResponse.success();
@@ -131,18 +137,21 @@ public class RecipeReviewController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:review:approve')")
     public ApiResponse<Void> updateReview(@PathVariable Long id, @Valid @RequestBody ReviewRequest request) {
         recipeReviewService.updateReview(id, request, currentReviewerName());
         return ApiResponse.success();
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:review:approve')")
     public ApiResponse<Void> deleteReview(@PathVariable Long id) {
         recipeReviewService.deleteReview(id);
         return ApiResponse.success();
     }
 
     @GetMapping("/pending")
+    @PreAuthorize("hasAuthority('content:review')")
     public ApiResponse<List<RecipeReview>> getPendingReviews() {
         return ApiResponse.success(recipeReviewService.getPendingReviews());
     }

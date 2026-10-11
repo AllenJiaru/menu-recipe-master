@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,8 +65,9 @@ public class AuthController {
     }
 
     @OperationLog(action = "RESET", target = "用户认证")
-    @Operation(summary = "重置密码", description = "通过用户名重置密码为新密码")
+    @Operation(summary = "重置密码", description = "管理员通过用户名重置密码（需验证码流程请使用 verify-reset-password）")
     @PostMapping("/reset-password")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request.getUsername(), request.getNewPassword());
         return ApiResponse.success();

@@ -10,6 +10,7 @@ import com.shiyu.mapper.RecipeMapper;
 import com.shiyu.mapper.GalleryImageMapper;
 import com.shiyu.mapper.SyncLogMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/settings")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class SettingsController {
 
     @Autowired

@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.config.EmailConfig;
 import com.shiyu.service.ai.EmailConfigPersistence;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +29,7 @@ public class EmailController {
 
     @Operation(summary = "获取邮件配置", description = "返回当前 SMTP 配置（密码脱敏）")
     @GetMapping("/config")
+    @PreAuthorize("hasAuthority('logs:settings')")
     public ApiResponse<Map<String, Object>> getConfig() {
         Map<String, Object> config = new HashMap<>();
         config.put("enabled", emailConfig.isEnabled());
@@ -41,6 +43,7 @@ public class EmailController {
 
     @Operation(summary = "保存邮件配置", description = "保存 SMTP 配置")
     @PostMapping("/config")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ApiResponse<String> saveConfig(@RequestBody Map<String, Object> body) {
         if (body.containsKey("enabled")) emailConfig.setEnabled((Boolean) body.get("enabled"));
         if (body.containsKey("host")) emailConfig.setHost((String) body.get("host"));
@@ -59,6 +62,7 @@ public class EmailController {
 
     @Operation(summary = "测试邮件发送", description = "发送测试邮件验证 SMTP 配置")
     @PostMapping("/test")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ApiResponse<Map<String, Object>> testEmail(@RequestBody Map<String, String> body) {
         String toEmail = body.get("email");
         if (toEmail == null || toEmail.isBlank()) {

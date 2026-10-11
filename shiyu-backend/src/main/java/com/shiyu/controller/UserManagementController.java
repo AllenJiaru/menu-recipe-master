@@ -5,6 +5,7 @@ import com.shiyu.dto.response.PageResponse;
 import com.shiyu.entity.SysRole;
 import com.shiyu.service.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user-management")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class UserManagementController {
 
     @Autowired

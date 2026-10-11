@@ -2,8 +2,10 @@ package com.shiyu.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.validation.ConstraintViolation;
@@ -14,6 +16,12 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(org.springframework.http.HttpStatus.FORBIDDEN)
+    public ApiResponse<Void> handleAccessDenied(AccessDeniedException e) {
+        return ApiResponse.error(ResultCode.FORBIDDEN.getCode(), "无权限访问该资源");
+    }
 
     @ExceptionHandler(BusinessException.class)
     public ApiResponse<Void> handleBusinessException(BusinessException e) {

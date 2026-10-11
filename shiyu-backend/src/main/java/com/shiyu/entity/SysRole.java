@@ -27,6 +27,9 @@ public class SysRole {
     @TableLogic
     private Integer deleted;
 
+    @TableField(exist = false)
+    private Long userCount;
+
     public Long getId() {
         return id;
     }
@@ -97,5 +100,13 @@ public class SysRole {
 
     public void setDeleted(Integer deleted) {
         this.deleted = deleted;
+    }
+
+    public Long getUserCount() {
+        return userCount;
+    }
+
+    public void setUserCount(Long userCount) {
+        this.userCount = userCount;
     }
 }

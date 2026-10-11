@@ -105,7 +105,12 @@ public class AuthServiceImpl implements AuthService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setNickname(request.getNickname() != null ? request.getNickname() : request.getUsername());
-        user.setRole(request.getRole() != null ? request.getRole() : "user");
+        // 角色白名单：仅允许 chef/diner，防止注册提权
+        String requestedRole = request.getRole() != null ? request.getRole().trim() : "";
+        if (!requestedRole.equals("chef") && !requestedRole.equals("diner")) {
+            requestedRole = "diner";
+        }
+        user.setRole(requestedRole);
         user.setEmail(request.getEmail() != null ? request.getEmail() : null);
         user.setStatus(1);
         user.setLoginCount(0);
@@ -185,6 +190,7 @@ public class AuthServiceImpl implements AuthService {
         }
         LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysRole::getCode, roleCode);
+        wrapper.eq(SysRole::getStatus, 1);
         SysRole role = sysRoleMapper.selectOne(wrapper);
         if (role != null) {
             SysUserRole userRole = new SysUserRole();

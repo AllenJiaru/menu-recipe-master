@@ -2,6 +2,7 @@ package com.shiyu.controller;
 
 import com.shiyu.annotation.OperationLog;
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.dto.request.OrderCreateRequest;
 import com.shiyu.dto.response.PageResponse;
 import com.shiyu.dto.response.StatisticsResponse;
@@ -26,6 +27,7 @@ public class OrderController {
     @OperationLog(action = "QUERY", target = "订单")
     @Operation(summary = "查询订单列表", description = "分页查询订单，支持状态、情侣、日期范围筛选")
     @GetMapping
+    @PreAuthorize("hasAuthority('business:order')")
     public ApiResponse<PageResponse<OrderRecord>> getOrders(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -39,6 +41,7 @@ public class OrderController {
     @OperationLog(action = "QUERY", target = "订单")
     @Operation(summary = "查询订单详情", description = "根据ID查询订单详细信息")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:order')")
     public ApiResponse<OrderRecord> getOrderById(@PathVariable Long id) {
         return ApiResponse.success(orderService.getOrderById(id));
     }
@@ -46,6 +49,7 @@ public class OrderController {
     @OperationLog(action = "CREATE", target = "订单")
     @Operation(summary = "创建订单", description = "提交新订单")
     @PostMapping
+    @PreAuthorize("hasAuthority('business:order:create')")
     public ApiResponse<OrderRecord> createOrder(@Valid @RequestBody OrderCreateRequest request) {
         return ApiResponse.success(orderService.createOrder(request));
     }
@@ -53,6 +57,7 @@ public class OrderController {
     @OperationLog(action = "ACCEPT", target = "订单")
     @Operation(summary = "接单", description = "接受订单并进入制作流程")
     @PutMapping("/{id}/accept")
+    @PreAuthorize("hasAuthority('business:order:accept')")
     public ApiResponse<Void> acceptOrder(@PathVariable Long id) {
         orderService.acceptOrder(id);
         return ApiResponse.success();
@@ -61,6 +66,7 @@ public class OrderController {
     @OperationLog(action = "UPDATE", target = "订单")
     @Operation(summary = "开始制作", description = "订单进入制作状态")
     @PutMapping("/{id}/cooking")
+    @PreAuthorize("hasAuthority('business:order:edit')")
     public ApiResponse<Void> cookingOrder(@PathVariable Long id) {
         orderService.cookingOrder(id);
         return ApiResponse.success();
@@ -69,6 +75,7 @@ public class OrderController {
     @OperationLog(action = "COMPLETE", target = "订单")
     @Operation(summary = "完成订单", description = "标记订单为已完成")
     @PutMapping("/{id}/complete")
+    @PreAuthorize("hasAuthority('business:order:complete')")
     public ApiResponse<Void> completeOrder(@PathVariable Long id) {
         orderService.completeOrder(id);
         return ApiResponse.success();
@@ -77,6 +84,7 @@ public class OrderController {
     @OperationLog(action = "CANCEL", target = "订单")
     @Operation(summary = "取消订单", description = "取消订单并填写取消原因")
     @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasAuthority('business:order:cancel')")
     public ApiResponse<Void> cancelOrder(@PathVariable Long id, @RequestBody Map<String, String> body) {
         orderService.cancelOrder(id, body.get("reason"));
         return ApiResponse.success();
@@ -85,6 +93,7 @@ public class OrderController {
     @OperationLog(action = "DELETE", target = "订单")
     @Operation(summary = "删除订单", description = "根据ID删除订单")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:order:delete')")
     public ApiResponse<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
         return ApiResponse.success();
@@ -93,6 +102,7 @@ public class OrderController {
     @OperationLog(action = "DELETE", target = "订单")
     @Operation(summary = "批量删除订单", description = "根据ID列表批量删除订单")
     @PostMapping("/batch/delete")
+    @PreAuthorize("hasAuthority('business:order:delete')")
     public ApiResponse<Void> batchDeleteOrders(@RequestBody com.shiyu.dto.request.BatchRequest request) {
         orderService.batchDeleteOrders(request.getIds());
         return ApiResponse.success();
@@ -101,6 +111,7 @@ public class OrderController {
     @OperationLog(action = "QUERY", target = "订单统计")
     @Operation(summary = "查询订单统计", description = "获取订单统计数据，支持日期范围筛选")
     @GetMapping("/stats")
+    @PreAuthorize("hasAuthority('business:order')")
     public ApiResponse<StatisticsResponse> getStats(
             @RequestParam(required = false) Long coupleId,
             @RequestParam(required = false) String startDate,

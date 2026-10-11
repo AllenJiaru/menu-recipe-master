@@ -52,6 +52,7 @@ public class PermissionServiceImpl implements PermissionService {
             if (user != null && user.getRole() != null && !user.getRole().isBlank()) {
                 LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<>();
                 wrapper.eq(SysRole::getCode, user.getRole());
+                wrapper.eq(SysRole::getStatus, 1);
                 SysRole role = sysRoleMapper.selectOne(wrapper);
                 if (role != null) {
                     userPermissions = sysPermissionMapper.findByRoleId(role.getId());

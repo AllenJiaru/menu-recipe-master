@@ -1,6 +1,7 @@
 package com.shiyu.controller;
 
 import com.shiyu.common.ApiResponse;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.shiyu.entity.Organization;
 import com.shiyu.entity.OrganizationInvite;
 import com.shiyu.service.OrganizationService;
@@ -31,6 +32,7 @@ public class OrganizationController {
 
     @Operation(summary = "查询组织树", description = "获取完整的组织层级树结构")
     @GetMapping("/tree")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<List<Map<String, Object>>> getOrganizationTree() {
         return ApiResponse.success(organizationService.getOrganizationTree());
     }
@@ -49,12 +51,14 @@ public class OrganizationController {
 
     @Operation(summary = "查询子组织", description = "获取指定组织的子组织列表")
     @GetMapping("/{id}/children")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<List<Map<String, Object>>> getOrganizationChildren(@PathVariable Long id) {
         return ApiResponse.success(organizationService.getOrganizationChildren(id));
     }
 
     @Operation(summary = "查询组织详情", description = "根据ID查询组织详细信息")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<Organization> getOrganization(@PathVariable Long id) {
         Organization org = organizationService.getOrganization(id);
         if (org == null) return ApiResponse.error("组织不存在");
@@ -63,6 +67,7 @@ public class OrganizationController {
 
     @Operation(summary = "创建组织", description = "新增组织")
     @PostMapping
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<Organization> createOrganization(@RequestBody Organization org, Authentication auth) {
         Long userId = getUserId(auth);
         return ApiResponse.success(organizationService.createOrganization(org, userId));
@@ -70,6 +75,7 @@ public class OrganizationController {
 
     @Operation(summary = "更新组织", description = "修改组织信息（需管理员权限）")
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<Organization> updateOrganization(
             @PathVariable Long id,
             @RequestBody Organization org,
@@ -83,6 +89,7 @@ public class OrganizationController {
 
     @Operation(summary = "删除组织", description = "删除组织（仅所有者可操作）")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<Void> deleteOrganization(@PathVariable Long id, Authentication auth) {
         Long userId = getUserId(auth);
         if (!organizationService.isOwner(id, userId)) {
@@ -96,12 +103,14 @@ public class OrganizationController {
 
     @Operation(summary = "查询组织成员", description = "获取指定组织的成员列表")
     @GetMapping("/{id}/members")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<List<Map<String, Object>>> getMembers(@PathVariable Long id) {
         return ApiResponse.success(organizationService.getMembersWithDetails(id));
     }
 
     @Operation(summary = "添加组织成员", description = "向组织添加新成员（需管理员权限）")
     @PostMapping("/{id}/members")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<Void> addMember(
             @PathVariable Long id,
             @RequestBody Map<String, Object> body,
@@ -119,6 +128,7 @@ public class OrganizationController {
 
     @Operation(summary = "移除组织成员", description = "从组织中移除成员（需管理员权限）")
     @DeleteMapping("/{id}/members/{userId}")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<Void> removeMember(
             @PathVariable Long id,
             @PathVariable Long userId,
@@ -133,6 +143,7 @@ public class OrganizationController {
 
     @Operation(summary = "修改成员角色", description = "修改组织成员角色（仅所有者可操作）")
     @PutMapping("/{id}/members/{userId}/role")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<Void> updateMemberRole(
             @PathVariable Long id,
             @PathVariable Long userId,
@@ -150,6 +161,7 @@ public class OrganizationController {
 
     @Operation(summary = "搜索可添加用户", description = "搜索尚未加入该组织的用户")
     @GetMapping("/{id}/search-users")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<List<Map<String, Object>>> searchUsers(
             @PathVariable Long id,
             @RequestParam(defaultValue = "") String keyword,
@@ -165,6 +177,7 @@ public class OrganizationController {
 
     @Operation(summary = "查询邀请记录", description = "获取组织的邀请记录列表")
     @GetMapping("/{id}/invites")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<List<OrganizationInvite>> getInvites(@PathVariable Long id, Authentication auth) {
         Long userId = getUserId(auth);
         if (!organizationService.isAdmin(id, userId)) {
@@ -175,6 +188,7 @@ public class OrganizationController {
 
     @Operation(summary = "创建邀请", description = "创建组织邀请链接")
     @PostMapping("/{id}/invite")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<OrganizationInvite> createInvite(
             @PathVariable Long id,
             @RequestBody Map<String, String> body,
@@ -209,6 +223,7 @@ public class OrganizationController {
 
     @Operation(summary = "查询组织统计", description = "获取组织统计数据")
     @GetMapping("/{id}/stats")
+    @PreAuthorize("hasAuthority('business:organization')")
     public ApiResponse<Map<String, Object>> getOrgStats(@PathVariable Long id, Authentication auth) {
         Long userId = getUserId(auth);
         if (!organizationService.isMember(id, userId)) {
