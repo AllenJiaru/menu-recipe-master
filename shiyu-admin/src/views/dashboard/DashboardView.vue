@@ -7,49 +7,49 @@
       </div>
     </div>
 
-    <div class="welcome-banner">
+    <div class="welcome-banner tilt-3d" data-tilt="4">
       <div class="welcome-content">
         <div class="welcome-text">
-          <h1>{{ greeting }}，{{ userInfo?.nickname || 'Admin' }}</h1>
+          <h1>{{ greeting }}，<span class="text-gradient-flow">{{ userInfo?.nickname || 'Admin' }}</span></h1>
           <p>欢迎回到食遇管理后台</p>
         </div>
       </div>
     </div>
 
-    <div class="stats-row" v-loading="loading">
-      <div class="stat-card">
+    <div class="stats-row stagger-in" v-loading="loading">
+      <div class="stat-card tilt-3d" data-tilt="8">
         <div class="stat-icon blue"><el-icon :size="20"><Notebook /></el-icon></div>
-        <div class="stat-info"><span class="stat-value">{{ stats.totalRecipes }}</span><span class="stat-label">菜谱总数</span></div>
+        <div class="stat-info"><span class="stat-value">{{ animated.totalRecipes }}</span><span class="stat-label">菜谱总数</span></div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card tilt-3d" data-tilt="8">
         <div class="stat-icon green"><el-icon :size="20"><ShoppingCart /></el-icon></div>
-        <div class="stat-info"><span class="stat-value">{{ stats.totalOrders }}</span><span class="stat-label">订单总数</span></div>
+        <div class="stat-info"><span class="stat-value">{{ animated.totalOrders }}</span><span class="stat-label">订单总数</span></div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card tilt-3d" data-tilt="8">
         <div class="stat-icon orange"><el-icon :size="20"><Document /></el-icon></div>
-        <div class="stat-info"><span class="stat-value">{{ stats.todayOrders }}</span><span class="stat-label">今日订单</span></div>
+        <div class="stat-info"><span class="stat-value">{{ animated.todayOrders }}</span><span class="stat-label">今日订单</span></div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card tilt-3d" data-tilt="8">
         <div class="stat-icon red"><el-icon :size="20"><Bell /></el-icon></div>
-        <div class="stat-info"><span class="stat-value">{{ stats.pendingOrders }}</span><span class="stat-label">待处理</span></div>
+        <div class="stat-info"><span class="stat-value">{{ animated.pendingOrders }}</span><span class="stat-label">待处理</span></div>
       </div>
     </div>
 
-    <div class="charts-row" v-loading="loading">
-      <div class="chart-card chart-wide">
-        <div class="card-title"><span>订单 & 菜谱趋势</span><span class="time-badge">近7天</span></div>
+    <div class="charts-row stagger-in" v-loading="loading">
+      <div class="chart-card chart-wide spectrum-card">
+        <div class="card-title"><span>订单 & 菜谱趋势</span><span class="time-badge">近30天</span></div>
         <div v-if="stats.trendLabels?.length" ref="trendChartRef" class="chart-area" />
         <el-empty v-else description="暂无趋势数据" />
       </div>
-      <div class="chart-card chart-narrow">
+      <div class="chart-card chart-narrow spectrum-card">
         <div class="card-title"><span>热门菜谱排行</span></div>
         <div v-if="stats.popularRecipes?.length" ref="barChartRef" class="chart-area" />
         <el-empty v-else description="暂无排行数据" />
       </div>
     </div>
 
-    <div class="bottom-row" v-loading="loading">
-      <div class="chart-card bottom-card">
+    <div class="bottom-row stagger-in" v-loading="loading">
+      <div class="chart-card bottom-card spectrum-card">
         <div class="card-title"><span>最近订单</span><el-button text type="primary" size="small" @click="$router.push('/orders')">查看全部</el-button></div>
         <div class="order-list">
           <div v-for="order in stats.recentOrders" :key="order.id" class="order-item">
@@ -63,7 +63,7 @@
           <el-empty v-if="!stats.recentOrders?.length" description="暂无订单" :image-size="60" />
         </div>
       </div>
-      <div class="chart-card bottom-card">
+      <div class="chart-card bottom-card spectrum-card">
         <div class="card-title"><span>热门菜谱 TOP5</span></div>
         <div class="recipe-list">
           <div v-for="(recipe, idx) in stats.popularRecipes?.slice(0, 5)" :key="recipe.id" class="recipe-item">
@@ -116,6 +116,56 @@ const stats = reactive<any>({
   recentOrders: [], popularRecipes: []
 })
 
+const animated = reactive({ totalRecipes: 0, totalOrders: 0, todayOrders: 0, pendingOrders: 0 })
+const animFrames: Record<string, number> = {}
+
+function animateValue(key: keyof typeof animated, target: number) {
+  const from = animated[key]
+  const to = Number(target) || 0
+  if (from === to) { animated[key] = to; return }
+  const dur = 900
+  const start = performance.now()
+  const step = (now: number) => {
+    const t = Math.min((now - start) / dur, 1)
+    const eased = 1 - Math.pow(1 - t, 3)
+    animated[key] = Math.round(from + (to - from) * eased)
+    if (t < 1) animFrames[key] = requestAnimationFrame(step)
+  }
+  if (animFrames[key]) cancelAnimationFrame(animFrames[key])
+  animFrames[key] = requestAnimationFrame(step)
+}
+
+function syncAnimatedStats() {
+  animateValue('totalRecipes', stats.totalRecipes)
+  animateValue('totalOrders', stats.totalOrders)
+  animateValue('todayOrders', stats.todayOrders)
+  animateValue('pendingOrders', stats.pendingOrders)
+}
+
+/* 3D tilt */
+let tiltCleanups: Array<() => void> = []
+function initTilt() {
+  tiltCleanups.forEach(fn => fn())
+  tiltCleanups = []
+  document.querySelectorAll<HTMLElement>('.tilt-3d[data-tilt]').forEach(el => {
+    const max = Number(el.dataset.tilt) || 6
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect()
+      const px = (e.clientX - r.left) / r.width - 0.5
+      const py = (e.clientY - r.top) / r.height - 0.5
+      el.style.transform = `perspective(800px) rotateY(${px * max}deg) rotateX(${-py * max}deg) translateZ(4px)`
+      el.style.boxShadow = `${-px * 16}px ${8 + py * 8}px 32px rgba(0,122,255,0.16)`
+    }
+    const onLeave = () => {
+      el.style.transform = ''
+      el.style.boxShadow = ''
+    }
+    el.addEventListener('mousemove', onMove)
+    el.addEventListener('mouseleave', onLeave)
+    tiltCleanups.push(() => { el.removeEventListener('mousemove', onMove); el.removeEventListener('mouseleave', onLeave) })
+  })
+}
+
 const trendChart = ref<echarts.ECharts>()
 const barChart = ref<echarts.ECharts>()
 
@@ -132,8 +182,8 @@ function initTrendChart() {
     tooltip: { trigger: 'axis', backgroundColor: 'rgba(255,255,255,0.96)', borderColor: '#E5E5EA', borderWidth: 1, textStyle: { color: '#1D1D1F', fontSize: 13 } },
     legend: { data: ['订单趋势', '新增菜谱'], top: 0, right: 0, textStyle: { color: '#6E6E73', fontSize: 12 }, itemWidth: 16, itemHeight: 3 },
     grid: { left: '2%', right: '3%', bottom: '2%', top: 40, containLabel: true },
-    xAxis: { type: 'category', data: stats.trendLabels, boundaryGap: false, axisLine: { lineStyle: { color: '#E5E5EA' } }, axisLabel: { color: '#86868B', fontSize: 12 }, axisTick: { show: false } },
-    yAxis: { type: 'value', splitLine: { lineStyle: { color: '#F5F5F7', type: 'dashed' } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#86868B', fontSize: 12 } },
+    xAxis: { type: 'category', data: stats.trendLabels, boundaryGap: false, axisLine: { lineStyle: { color: '#E5E5EA' } }, axisLabel: { color: '#86868B', fontSize: 12, hideOverlap: true }, axisTick: { show: false } },
+    yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: '#F5F5F7', type: 'dashed' } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#86868B', fontSize: 12 } },
     series: [
       { name: '订单趋势', type: 'line', smooth: true, data: stats.trendOrderData, lineStyle: { width: 2, color: '#007AFF' }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(0,122,255,0.15)' }, { offset: 1, color: 'rgba(0,122,255,0.01)' }]) }, itemStyle: { color: '#007AFF' }, symbol: 'circle', symbolSize: 6 },
       { name: '新增菜谱', type: 'line', smooth: true, data: stats.trendRecipeData, lineStyle: { width: 2, color: '#34C759' }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(52,199,89,0.15)' }, { offset: 1, color: 'rgba(52,199,89,0.01)' }]) }, itemStyle: { color: '#34C759' }, symbol: 'circle', symbolSize: 6 }
@@ -160,19 +210,25 @@ onMounted(async () => {
   loading.value = true
   try { const res: any = await getDashboard(); Object.assign(stats, res.data) } catch { ElMessage.error('加载仪表盘数据失败') }
   loading.value = false
-  await nextTick(); initTrendChart(); initBarChart()
+  syncAnimatedStats()
+  await nextTick(); initTrendChart(); initBarChart(); initTilt()
   window.addEventListener('resize', handleResize)
 })
 
 const loadData = async () => {
-  try { const res: any = await getDashboard(); Object.assign(stats, res.data) } catch { /* ignore */ }
+  try { const res: any = await getDashboard(); Object.assign(stats, res.data); syncAnimatedStats() } catch { /* ignore */ }
 }
 
 let refreshTimer: ReturnType<typeof setInterval> | null = null
 onMounted(() => { refreshTimer = setInterval(loadData, 30000) })
 onUnmounted(() => { if (refreshTimer) clearInterval(refreshTimer) })
 
-onBeforeUnmount(() => { window.removeEventListener('resize', handleResize); trendChart.value?.dispose(); barChart.value?.dispose() })
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+  trendChart.value?.dispose(); barChart.value?.dispose()
+  tiltCleanups.forEach(fn => fn()); tiltCleanups = []
+  Object.values(animFrames).forEach(id => cancelAnimationFrame(id))
+})
 </script>
 
 <style scoped lang="scss">
@@ -507,6 +563,28 @@ html.dark .chart-card {
 @keyframes barShimmer {
   0% { transform: translateX(-100%); }
   60%, 100% { transform: translateX(100%); }
+}
+
+/* ═══ Tier-2：错落入场 ═══ */
+.stagger-in > * {
+  animation: dashCardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.stagger-in > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-in > *:nth-child(2) { animation-delay: 0.12s; }
+.stagger-in > *:nth-child(3) { animation-delay: 0.19s; }
+.stagger-in > *:nth-child(4) { animation-delay: 0.26s; }
+@keyframes dashCardIn {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* 统计数字渐变描金 */
+.stat-value {
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--text-primary) 60%, rgba(0, 122, 255, 0.85));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @media (max-width: 1200px) {

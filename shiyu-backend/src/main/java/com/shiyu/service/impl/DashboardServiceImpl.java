@@ -81,7 +81,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<Long> trendOrderData = new ArrayList<>();
         List<Long> trendRecipeData = new ArrayList<>();
         DateTimeFormatter labelFormatter = DateTimeFormatter.ofPattern("MM-dd");
-        for (int i = 6; i >= 0; i--) {
+        for (int i = 29; i >= 0; i--) {
             LocalDate date = LocalDate.now().minusDays(i);
             LocalDateTime dayStart = date.atStartOfDay();
             LocalDateTime dayEnd = date.atTime(LocalTime.MAX);

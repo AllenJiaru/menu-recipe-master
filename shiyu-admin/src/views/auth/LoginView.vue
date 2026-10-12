@@ -51,6 +51,9 @@
         </div>
       </div>
 
+      <!-- 星座粒子背景 -->
+      <canvas ref="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+
       <!-- Decorative circles -->
       <div class="deco deco-1"></div>
       <div class="deco deco-2"></div>
@@ -244,11 +247,84 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessage } from 'element-plus'
 import { register, sendResetCode, verifyResetPassword } from '@/api/auth'
+
+/* 星座粒子 */
+const particleCanvas = ref<HTMLCanvasElement>()
+let particleRaf = 0
+let particleResize: (() => void) | null = null
+
+onMounted(() => {
+  const canvas = particleCanvas.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  let w = 0, h = 0
+  const N = 56
+  const nodes: { x: number; y: number; vx: number; vy: number; r: number }[] = []
+
+  const resize = () => {
+    const rect = canvas.parentElement?.getBoundingClientRect()
+    if (!rect) return
+    w = rect.width; h = rect.height
+    canvas.width = w * dpr; canvas.height = h * dpr
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px'
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  }
+  resize()
+  particleResize = resize
+  window.addEventListener('resize', resize)
+
+  for (let i = 0; i < N; i++) {
+    nodes.push({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+      r: Math.random() * 1.6 + 0.6
+    })
+  }
+
+  const draw = () => {
+    ctx.clearRect(0, 0, w, h)
+    for (const n of nodes) {
+      n.x += n.vx; n.y += n.vy
+      if (n.x < 0 || n.x > w) n.vx *= -1
+      if (n.y < 0 || n.y > h) n.vy *= -1
+    }
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        const dx = nodes[i].x - nodes[j].x
+        const dy = nodes[i].y - nodes[j].y
+        const d2 = dx * dx + dy * dy
+        if (d2 < 130 * 130) {
+          ctx.strokeStyle = `rgba(255,255,255,${0.14 * (1 - d2 / (130 * 130))})`
+          ctx.lineWidth = 0.8
+          ctx.beginPath()
+          ctx.moveTo(nodes[i].x, nodes[i].y)
+          ctx.lineTo(nodes[j].x, nodes[j].y)
+          ctx.stroke()
+        }
+      }
+    }
+    for (const n of nodes) {
+      ctx.fillStyle = 'rgba(255,255,255,0.75)'
+      ctx.beginPath()
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    particleRaf = requestAnimationFrame(draw)
+  }
+  draw()
+})
+
+onUnmounted(() => {
+  cancelAnimationFrame(particleRaf)
+  if (particleResize) window.removeEventListener('resize', particleResize)
+})
 
 const router = useRouter()
 const route = useRoute()
@@ -423,6 +499,13 @@ async function doReset() {
   z-index: 2;
   max-width: 440px;
   color: #fff;
+}
+
+.particle-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .brand {

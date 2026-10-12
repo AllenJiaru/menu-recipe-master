@@ -107,6 +107,11 @@
       </header>
 
       <main class="main-content">
+        <div class="ambient-bg" aria-hidden="true">
+          <span class="ambient-orb orb-a"></span>
+          <span class="ambient-orb orb-b"></span>
+          <span class="ambient-orb orb-c"></span>
+        </div>
         <router-view v-slot="{ Component }">
           <transition name="page" mode="out-in">
             <component :is="Component" />
@@ -807,7 +812,10 @@ onMounted(async () => {
     radial-gradient(ellipse at 50% 50%, rgba(90,200,250,0.03) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+  transition: left 0.3s cubic-bezier(0.25,0.1,0.25,1);
 }
+
+.layout:has(.sidebar.collapsed) .main-content::before { left: 60px; }
 
 .main-content > * {
   position: relative;
@@ -817,12 +825,109 @@ onMounted(async () => {
 /* Transitions */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
-.page-enter-active { animation: pageIn 0.4s cubic-bezier(0.25,0.1,0.25,1); }
-.page-leave-active { animation: pageOut 0.15s ease-in reverse; }
+.page-enter-active { animation: pageIn 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.page-leave-active { animation: pageOut 0.2s ease-in forwards; }
 
 @keyframes pageIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.98); filter: blur(4px); }
+  from { opacity: 0; transform: translateY(26px) scale(0.97); filter: blur(6px); }
   to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
-@keyframes pageOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes pageOut {
+  from { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  to { opacity: 0; transform: translateY(-14px) scale(1.01); filter: blur(5px); }
+}
+
+/* ═══ Tier-2 Spectacle ═══ */
+
+/* 环境漂浮光球 */
+.ambient-bg {
+  position: fixed;
+  top: 52px;
+  left: 220px;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  transition: left 0.3s cubic-bezier(0.25,0.1,0.25,1);
+}
+.layout:has(.sidebar.collapsed) .ambient-bg { left: 60px; }
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.5;
+  will-change: transform;
+}
+.orb-a {
+  width: 380px; height: 380px;
+  top: -80px; right: -60px;
+  background: radial-gradient(circle, rgba(0,122,255,0.28), transparent 70%);
+  animation: orbDriftA 22s ease-in-out infinite;
+}
+.orb-b {
+  width: 320px; height: 320px;
+  bottom: -60px; left: 8%;
+  background: radial-gradient(circle, rgba(175,82,222,0.22), transparent 70%);
+  animation: orbDriftB 28s ease-in-out infinite;
+}
+.orb-c {
+  width: 260px; height: 260px;
+  top: 42%; left: 48%;
+  background: radial-gradient(circle, rgba(52,199,89,0.14), transparent 70%);
+  animation: orbDriftC 34s ease-in-out infinite;
+}
+@keyframes orbDriftA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-50px, 40px) scale(1.12); }
+  66% { transform: translate(30px, -20px) scale(0.94); }
+}
+@keyframes orbDriftB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, -46px) scale(1.15); }
+}
+@keyframes orbDriftC {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  50% { transform: translate(-70px, 30px) scale(1.2); opacity: 0.6; }
+}
+html.dark .ambient-orb, html[data-theme="dark"] .ambient-orb { opacity: 0.65; }
+@media (max-width: 768px) {
+  .ambient-bg { left: 60px; }
+  .ambient-orb { filter: blur(90px); opacity: 0.35; }
+}
+
+/* 顶栏底部流光 */
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,122,255,0.55) 25%, rgba(175,82,222,0.55) 55%, rgba(255,45,85,0.4) 80%, transparent 100%);
+  background-size: 220% 100%;
+  animation: headerFlow 7s linear infinite;
+  pointer-events: none;
+  opacity: 0.75;
+}
+@keyframes headerFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 220% 50%; }
+}
+
+/* 侧栏激活项持续微光 */
+.nav-item.active::before {
+  animation: navGlowPulse 2.6s ease-in-out infinite;
+}
+@keyframes navGlowPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,122,255,0.5); height: 24px; }
+  50% { box-shadow: 0 0 18px rgba(0,122,255,0.85), 0 0 32px rgba(175,82,222,0.4); height: 30px; }
+}
+/* 折叠态激活图标也发光 */
+.nav-item-icon.active {
+  box-shadow: 0 0 0 1px rgba(0,122,255,0.25), 0 2px 12px rgba(0,122,255,0.28);
+  animation: iconGlowPulse 2.6s ease-in-out infinite;
+}
+@keyframes iconGlowPulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0,122,255,0.25), 0 2px 12px rgba(0,122,255,0.28); }
+  50% { box-shadow: 0 0 0 1px rgba(0,122,255,0.45), 0 2px 20px rgba(0,122,255,0.5), 0 0 28px rgba(175,82,222,0.3); }
+}
 </style>
