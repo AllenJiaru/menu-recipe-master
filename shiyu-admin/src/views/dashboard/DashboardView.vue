@@ -86,14 +86,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick, onBeforeUnmount } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, onBeforeUnmount, watch } from 'vue'
 import * as echarts from 'echarts'
 import { getDashboard } from '@/api/dashboard'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 import { orderStatusMap, orderStatusType, formatDateShort, imgUrl } from '@/utils/format'
 import { ElMessage } from 'element-plus'
 
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 const userInfo = computed(() => authStore.userInfo)
 const loading = ref(false)
 const trendChartRef = ref<HTMLElement>()
@@ -169,6 +171,14 @@ function initTilt() {
 const trendChart = ref<echarts.ECharts>()
 const barChart = ref<echarts.ECharts>()
 
+const isDarkMode = () => document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark'
+
+function chartPalette() {
+  return isDarkMode()
+    ? { axis: '#6B7A73', split: 'rgba(255,255,255,0.06)', label: '#9BA8A2', tipBg: 'rgba(12,16,14,0.95)', tipBorder: 'rgba(0,229,153,0.2)', tipText: '#F2F6F4', primary: '#00E599', primaryA: 'rgba(0,229,153,0.28)', primaryB: 'rgba(0,229,153,0.02)', second: '#22D3EE', secondA: 'rgba(34,211,238,0.25)', secondB: 'rgba(34,211,238,0.02)', bar: '#00E599', barLabel: '#9BA8A2', yAxisLabel: '#F2F6F4' }
+    : { axis: '#E5E5EA', split: '#F5F5F7', label: '#86868B', tipBg: 'rgba(255,255,255,0.96)', tipBorder: '#E5E5EA', tipText: '#1D1D1F', primary: '#007AFF', primaryA: 'rgba(0,122,255,0.15)', primaryB: 'rgba(0,122,255,0.01)', second: '#34C759', secondA: 'rgba(52,199,89,0.15)', secondB: 'rgba(52,199,89,0.01)', bar: '#007AFF', barLabel: '#6E6E73', yAxisLabel: '#1D1D1F' }
+}
+
 function getBarWidth(count: number) {
   const counts = stats.popularRecipes?.map((r: any) => r.orderCount) || []
   const max = counts.length ? Math.max(...counts) : 1
@@ -177,31 +187,39 @@ function getBarWidth(count: number) {
 
 function initTrendChart() {
   if (!trendChartRef.value || !stats.trendLabels?.length) return
-  trendChart.value = echarts.init(trendChartRef.value)
+  const p = chartPalette()
+  if (!trendChart.value) trendChart.value = echarts.init(trendChartRef.value)
   trendChart.value.setOption({
-    tooltip: { trigger: 'axis', backgroundColor: 'rgba(255,255,255,0.96)', borderColor: '#E5E5EA', borderWidth: 1, textStyle: { color: '#1D1D1F', fontSize: 13 } },
-    legend: { data: ['订单趋势', '新增菜谱'], top: 0, right: 0, textStyle: { color: '#6E6E73', fontSize: 12 }, itemWidth: 16, itemHeight: 3 },
+    tooltip: { trigger: 'axis', backgroundColor: p.tipBg, borderColor: p.tipBorder, borderWidth: 1, textStyle: { color: p.tipText, fontSize: 13 } },
+    legend: { data: ['订单趋势', '新增菜谱'], top: 0, right: 0, textStyle: { color: p.label, fontSize: 12 }, itemWidth: 16, itemHeight: 3 },
     grid: { left: '2%', right: '3%', bottom: '2%', top: 40, containLabel: true },
-    xAxis: { type: 'category', data: stats.trendLabels, boundaryGap: false, axisLine: { lineStyle: { color: '#E5E5EA' } }, axisLabel: { color: '#86868B', fontSize: 12, hideOverlap: true }, axisTick: { show: false } },
-    yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: '#F5F5F7', type: 'dashed' } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#86868B', fontSize: 12 } },
+    xAxis: { type: 'category', data: stats.trendLabels, boundaryGap: false, axisLine: { lineStyle: { color: p.axis } }, axisLabel: { color: p.label, fontSize: 12, hideOverlap: true }, axisTick: { show: false } },
+    yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: p.split, type: 'dashed' } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: p.label, fontSize: 12 } },
     series: [
-      { name: '订单趋势', type: 'line', smooth: true, data: stats.trendOrderData, lineStyle: { width: 2, color: '#007AFF' }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(0,122,255,0.15)' }, { offset: 1, color: 'rgba(0,122,255,0.01)' }]) }, itemStyle: { color: '#007AFF' }, symbol: 'circle', symbolSize: 6 },
-      { name: '新增菜谱', type: 'line', smooth: true, data: stats.trendRecipeData, lineStyle: { width: 2, color: '#34C759' }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(52,199,89,0.15)' }, { offset: 1, color: 'rgba(52,199,89,0.01)' }]) }, itemStyle: { color: '#34C759' }, symbol: 'circle', symbolSize: 6 }
+      { name: '订单趋势', type: 'line', smooth: true, data: stats.trendOrderData, lineStyle: { width: 2, color: p.primary }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: p.primaryA }, { offset: 1, color: p.primaryB }]) }, itemStyle: { color: p.primary }, symbol: 'circle', symbolSize: 6 },
+      { name: '新增菜谱', type: 'line', smooth: true, data: stats.trendRecipeData, lineStyle: { width: 2, color: p.second }, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: p.secondA }, { offset: 1, color: p.secondB }]) }, itemStyle: { color: p.second }, symbol: 'circle', symbolSize: 6 }
     ]
-  })
+  }, true)
 }
 
 function initBarChart() {
   if (!barChartRef.value || !stats.popularRecipes?.length) return
+  const p = chartPalette()
   const recipes = stats.popularRecipes.slice(0, 6)
-  barChart.value = echarts.init(barChartRef.value)
+  if (!barChart.value) barChart.value = echarts.init(barChartRef.value)
   barChart.value.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(255,255,255,0.96)', borderColor: '#E5E5EA', borderWidth: 1, textStyle: { color: '#1D1D1F' } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: p.tipBg, borderColor: p.tipBorder, borderWidth: 1, textStyle: { color: p.tipText } },
     grid: { left: '2%', right: '8%', bottom: '2%', top: 8, containLabel: true },
-    xAxis: { type: 'value', splitLine: { lineStyle: { color: '#F5F5F7', type: 'dashed' } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#86868B', fontSize: 11 } },
-    yAxis: { type: 'category', data: recipes.map((r: any) => r.name || '?').reverse(), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: '#1D1D1F', fontSize: 12, width: 60, overflow: 'truncate', ellipsis: '..' } },
-    series: [{ type: 'bar', data: recipes.map((r: any) => r.orderCount || 0).reverse(), barWidth: 14, itemStyle: { borderRadius: [0, 4, 4, 0], color: '#007AFF' }, label: { show: true, position: 'right', color: '#6E6E73', fontSize: 12, formatter: '{c}次' } }]
-  })
+    xAxis: { type: 'value', splitLine: { lineStyle: { color: p.split, type: 'dashed' } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: p.label, fontSize: 11 } },
+    yAxis: { type: 'category', data: recipes.map((r: any) => r.name || '?').reverse(), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: p.yAxisLabel, fontSize: 12, width: 60, overflow: 'truncate', ellipsis: '..' } },
+    series: [{ type: 'bar', data: recipes.map((r: any) => r.orderCount || 0).reverse(), barWidth: 14, itemStyle: { borderRadius: [0, 4, 4, 0], color: p.bar }, label: { show: true, position: 'right', color: p.barLabel, fontSize: 12, formatter: '{c}次' } }]
+  }, true)
+}
+
+function refreshCharts() {
+  trendChart.value?.dispose(); trendChart.value = undefined
+  barChart.value?.dispose(); barChart.value = undefined
+  nextTick(() => { initTrendChart(); initBarChart() })
 }
 
 function handleResize() { trendChart.value?.resize(); barChart.value?.resize() }
@@ -222,6 +240,8 @@ const loadData = async () => {
 let refreshTimer: ReturnType<typeof setInterval> | null = null
 onMounted(() => { refreshTimer = setInterval(loadData, 30000) })
 onUnmounted(() => { if (refreshTimer) clearInterval(refreshTimer) })
+
+watch(() => themeStore.isDark, () => { refreshCharts() })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
@@ -586,6 +606,124 @@ html.dark .chart-card {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* ═══════════════════════════════════════════════
+   NEON GLASS DARK · 仪表盘暗色覆盖
+   ═══════════════════════════════════════════════ */
+
+/* 欢迎横幅 → 深绿霓虹渐变 */
+html.dark .welcome-banner, html[data-theme="dark"] .welcome-banner {
+  background: linear-gradient(135deg, #04140E 0%, #062318 35%, #0A3325 65%, #04140E 100%) !important;
+  background-size: 200% 200% !important;
+  border: 1px solid rgba(0,229,153,0.22) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 48px rgba(0,229,153,0.08) !important;
+  animation: bannerGradientDrift 12s ease infinite !important;
+}
+html.dark .welcome-banner::before, html[data-theme="dark"] .welcome-banner::before,
+html.dark .welcome-banner::after, html[data-theme="dark"] .welcome-banner::after {
+  background: rgba(0,229,153,0.1) !important;
+}
+html.dark .welcome-text h1, html[data-theme="dark"] .welcome-text h1 { color: #F2F6F4 !important; }
+html.dark .welcome-text p, html[data-theme="dark"] .welcome-text p { color: #9BA8A2 !important; }
+html.dark .text-gradient-flow, html[data-theme="dark"] .text-gradient-flow {
+  background: linear-gradient(90deg, #33FFB3, #22D3EE, #A78BFA, #33FFB3) !important;
+  background-size: 300% 100% !important;
+}
+
+/* 统计卡 → 深色玻璃 */
+html.dark .stat-card, html[data-theme="dark"] .stat-card {
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(20px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(130%) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4) !important;
+}
+html.dark .stat-card::before, html[data-theme="dark"] .stat-card::before {
+  background: linear-gradient(90deg, transparent, rgba(0,229,153,0.6), rgba(34,211,238,0.5), transparent) !important;
+}
+html.dark .stat-card:hover, html[data-theme="dark"] .stat-card:hover {
+  border-color: rgba(0,229,153,0.4) !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.55), 0 0 32px rgba(0,229,153,0.12) !important;
+}
+html.dark .stat-card:hover .stat-value, html[data-theme="dark"] .stat-card:hover .stat-value {
+  background: linear-gradient(135deg, #33FFB3, #22D3EE) !important;
+}
+html.dark .stat-value, html[data-theme="dark"] .stat-value {
+  background: linear-gradient(135deg, #F2F6F4 55%, rgba(0,229,153,0.95)) !important;
+}
+/* 图标底色暗色提亮 */
+html.dark .stat-icon.blue, html[data-theme="dark"] .stat-icon.blue { background: rgba(0,229,153,0.16) !important; color: #33FFB3 !important; }
+html.dark .stat-icon.green, html[data-theme="dark"] .stat-icon.green { background: rgba(0,229,153,0.16) !important; color: #33FFB3 !important; }
+html.dark .stat-icon.orange, html[data-theme="dark"] .stat-icon.orange { background: rgba(255,176,32,0.14) !important; color: #FFB020 !important; }
+html.dark .stat-icon.red, html[data-theme="dark"] .stat-icon.red { background: rgba(255,92,92,0.14) !important; color: #FF5C5C !important; }
+
+/* 图表卡 → 深色玻璃 */
+html.dark .chart-card, html[data-theme="dark"] .chart-card {
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(20px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(130%) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4) !important;
+}
+html.dark .chart-card:hover, html[data-theme="dark"] .chart-card:hover {
+  border-color: rgba(0,229,153,0.28) !important;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 28px rgba(0,229,153,0.08) !important;
+}
+html.dark .chart-card::before, html[data-theme="dark"] .chart-card::before {
+  background: linear-gradient(90deg, transparent, rgba(0,229,153,0.5), rgba(34,211,238,0.4), transparent) !important;
+  opacity: 0.7;
+}
+html.dark .card-title, html[data-theme="dark"] .card-title { color: #F2F6F4 !important; }
+
+/* time-badge */
+html.dark .time-badge, html[data-theme="dark"] .time-badge {
+  background: rgba(0,229,153,0.14) !important;
+  color: #33FFB3 !important;
+  border: 1px solid rgba(0,229,153,0.25) !important;
+}
+
+/* 订单/菜谱列表 */
+html.dark .order-avatar, html[data-theme="dark"] .order-avatar {
+  background: rgba(0,229,153,0.14) !important;
+  color: #33FFB3 !important;
+}
+html.dark .recipe-rank, html[data-theme="dark"] .recipe-rank {
+  background: linear-gradient(135deg, #00E599, #0BAF8A) !important;
+  color: #041008 !important;
+  box-shadow: 0 2px 10px rgba(0,229,153,0.4) !important;
+}
+html.dark .recipe-rank.rank-2, html[data-theme="dark"] .recipe-rank.rank-2 {
+  background: linear-gradient(135deg, #8BE9FF, #22D3EE) !important;
+  box-shadow: 0 2px 10px rgba(34,211,238,0.35) !important;
+}
+html.dark .recipe-rank.rank-3, html[data-theme="dark"] .recipe-rank.rank-3 {
+  background: linear-gradient(135deg, #D8B4FE, #A78BFA) !important;
+  box-shadow: 0 2px 10px rgba(167,139,250,0.35) !important;
+}
+html.dark .bar-fill, html[data-theme="dark"] .bar-fill {
+  background: linear-gradient(90deg, #00E599, #22D3EE) !important;
+  box-shadow: 0 0 8px rgba(0,229,153,0.5);
+}
+html.dark .recipe-avatar, html[data-theme="dark"] .recipe-avatar {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+html.dark .order-item, html[data-theme="dark"] .order-item:hover { border-color: rgba(255,255,255,0.06) !important; }
+html.dark .recipe-item, html[data-theme="dark"] .recipe-item:hover { border-color: rgba(255,255,255,0.06) !important; }
+
+/* 状态标签暗色（Element tag 已有全局覆盖，这里补 dashboard 常用） */
+html.dark .el-tag--success, html[data-theme="dark"] .el-tag--success { --el-tag-bg-color: rgba(0,229,153,0.12); --el-tag-text-color: #33FFB3; --el-tag-border-color: rgba(0,229,153,0.3); }
+html.dark .el-tag--warning, html[data-theme="dark"] .el-tag--warning { --el-tag-bg-color: rgba(255,176,32,0.12); --el-tag-text-color: #FFD28A; --el-tag-border-color: rgba(255,176,32,0.3); }
+html.dark .el-tag--danger, html[data-theme="dark"] .el-tag--danger { --el-tag-bg-color: rgba(255,92,92,0.12); --el-tag-text-color: #FFA8A8; --el-tag-border-color: rgba(255,92,92,0.3); }
+html.dark .el-tag--info, html[data-theme="dark"] .el-tag--info { --el-tag-bg-color: rgba(255,255,255,0.08); --el-tag-text-color: #9BA8A2; --el-tag-border-color: rgba(255,255,255,0.14); }
+html.dark .el-tag--primary, html[data-theme="dark"] .el-tag--primary { --el-tag-bg-color: rgba(34,211,238,0.12); --el-tag-text-color: #8BE9FF; --el-tag-border-color: rgba(34,211,238,0.3); }
+
+/* page-header 暗色 */
+html.dark .page-header h2, html[data-theme="dark"] .page-header h2 { color: #F2F6F4 !important; }
+html.dark .page-header p, html[data-theme="dark"] .page-header p { color: #9BA8A2 !important; }
+
+/* 图表空状态 */
+html.dark .el-empty__description, html[data-theme="dark"] .el-empty__description { color: #6B7A73 !important; }
 
 @media (max-width: 1200px) {
   .stats-row { grid-template-columns: repeat(2, 1fr); }

@@ -930,4 +930,161 @@ html.dark .ambient-orb, html[data-theme="dark"] .ambient-orb { opacity: 0.65; }
   0%, 100% { box-shadow: 0 0 0 1px rgba(0,122,255,0.25), 0 2px 12px rgba(0,122,255,0.28); }
   50% { box-shadow: 0 0 0 1px rgba(0,122,255,0.45), 0 2px 20px rgba(0,122,255,0.5), 0 0 28px rgba(175,82,222,0.3); }
 }
+
+/* ═══════════════════════════════════════════════
+   NEON GLASS DARK · 暗色玻璃拟态布局覆盖
+   ═══════════════════════════════════════════════ */
+
+/* 主内容区背景 → 深黑 + 微绿星云 */
+html.dark .main-content,
+html[data-theme="dark"] .main-content {
+  background: linear-gradient(160deg, rgba(6,8,7,0.4) 0%, rgba(4,6,5,0.7) 100%) !important;
+}
+html.dark .main-content::before,
+html[data-theme="dark"] .main-content::before {
+  background:
+    radial-gradient(ellipse at 18% 12%, rgba(0,229,153,0.07) 0%, transparent 52%),
+    radial-gradient(ellipse at 82% 88%, rgba(34,211,238,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 55% 50%, rgba(167,139,250,0.03) 0%, transparent 45%) !important;
+}
+
+/* 侧栏 → 深色玻璃 */
+html.dark .sidebar,
+html[data-theme="dark"] .sidebar {
+  background: linear-gradient(180deg, rgba(10,14,12,0.95) 0%, rgba(6,9,8,0.98) 100%) !important;
+  border-right: 1px solid rgba(0,229,153,0.1) !important;
+  box-shadow: 4px 0 32px rgba(0,0,0,0.6), inset -1px 0 0 rgba(255,255,255,0.04) !important;
+  backdrop-filter: blur(30px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(130%) !important;
+}
+html.dark .sidebar::before,
+html[data-theme="dark"] .sidebar::before {
+  background: linear-gradient(180deg, transparent, rgba(0,229,153,0.4), rgba(34,211,238,0.3), transparent) !important;
+}
+html.dark .sidebar-logo,
+html[data-theme="dark"] .sidebar-logo {
+  border-bottom-color: rgba(255,255,255,0.06) !important;
+}
+html.dark .logo-name,
+html[data-theme="dark"] .logo-name {
+  background: linear-gradient(135deg, #00E599 0%, #22D3EE 55%, #A78BFA 100%) !important;
+}
+html.dark .sidebar-footer,
+html[data-theme="dark"] .sidebar-footer {
+  border-top-color: rgba(255,255,255,0.06) !important;
+}
+
+/* 导航普通项 */
+html.dark .nav-item,
+html[data-theme="dark"] .nav-item {
+  color: var(--text-secondary) !important;
+}
+html.dark .nav-item:hover,
+html[data-theme="dark"] .nav-item:hover {
+  background: rgba(0,229,153,0.08) !important;
+  color: var(--text-primary) !important;
+}
+html.dark .nav-item-icon:hover,
+html[data-theme="dark"] .nav-item-icon:hover {
+  background: rgba(0,229,153,0.1) !important;
+  color: #00E599 !important;
+}
+
+/* 导航激活项 → 绿渐变 + 绿光 */
+html.dark .nav-item.active,
+html[data-theme="dark"] .nav-item.active {
+  background: linear-gradient(135deg, rgba(0,229,153,0.22), rgba(14,165,160,0.12)) !important;
+  color: #33FFB3 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 18px rgba(0,229,153,0.18), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+}
+html.dark .nav-item.active .el-icon,
+html[data-theme="dark"] .nav-item.active .el-icon {
+  color: #33FFB3 !important;
+}
+html.dark .nav-item.active::before,
+html[data-theme="dark"] .nav-item.active::before {
+  background: linear-gradient(180deg, #00E599, #22D3EE) !important;
+  animation: navGlowPulseDark 2.6s ease-in-out infinite;
+}
+@keyframes navGlowPulseDark {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,229,153,0.6); height: 24px; }
+  50% { box-shadow: 0 0 20px rgba(0,229,153,0.95), 0 0 36px rgba(34,211,238,0.45); height: 30px; }
+}
+html.dark .nav-item.active::after,
+html[data-theme="dark"] .nav-item.active::after {
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent) !important;
+}
+html.dark .nav-item-icon.active,
+html[data-theme="dark"] .nav-item-icon.active {
+  color: #33FFB3 !important;
+  background: rgba(0,229,153,0.12) !important;
+  box-shadow: 0 0 0 1px rgba(0,229,153,0.3), 0 2px 14px rgba(0,229,153,0.35) !important;
+  animation: iconGlowPulseDark 2.6s ease-in-out infinite;
+}
+@keyframes iconGlowPulseDark {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0,229,153,0.3), 0 2px 14px rgba(0,229,153,0.35); }
+  50% { box-shadow: 0 0 0 1px rgba(0,229,153,0.55), 0 2px 22px rgba(0,229,153,0.55), 0 0 30px rgba(34,211,238,0.3); }
+}
+
+/* 分组标题 */
+html.dark .group-header,
+html[data-theme="dark"] .group-header {
+  color: var(--text-tertiary) !important;
+}
+html.dark .group-header:hover,
+html[data-theme="dark"] .group-header:hover {
+  background: rgba(255,255,255,0.04) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* 顶栏 → 深色玻璃 */
+html.dark .header,
+html[data-theme="dark"] .header {
+  background: rgba(8,11,10,0.82) !important;
+  border-bottom-color: rgba(0,229,153,0.1) !important;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.5) !important;
+  backdrop-filter: saturate(140%) blur(25px) !important;
+  -webkit-backdrop-filter: saturate(140%) blur(25px) !important;
+}
+html.dark .header::after,
+html[data-theme="dark"] .header::after {
+  background: linear-gradient(90deg, transparent 0%, rgba(0,229,153,0.65) 25%, rgba(34,211,238,0.55) 55%, rgba(167,139,250,0.45) 80%, transparent 100%) !important;
+}
+html.dark .header-breadcrumb, html.dark .header-breadcrumb-item,
+html[data-theme="dark"] .header-breadcrumb, html[data-theme="dark"] .header-breadcrumb-item {
+  color: var(--text-secondary) !important;
+}
+
+/* 环境光球 → 绿/青 */
+html.dark .orb-a, html[data-theme="dark"] .orb-a {
+  background: radial-gradient(circle, rgba(0,229,153,0.3), transparent 70%) !important;
+}
+html.dark .orb-b, html[data-theme="dark"] .orb-b {
+  background: radial-gradient(circle, rgba(34,211,238,0.22), transparent 70%) !important;
+}
+html.dark .orb-c, html[data-theme="dark"] .orb-c {
+  background: radial-gradient(circle, rgba(167,139,250,0.16), transparent 70%) !important;
+}
+
+/* 页面转场暗色兼容（filter 在暗色下更明显，略降 blur） */
+html.dark .page-enter-active, html[data-theme="dark"] .page-enter-active {
+  animation: pageInDark 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes pageInDark {
+  from { opacity: 0; transform: translateY(22px) scale(0.98); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+/* 折叠按钮/小图标按钮暗色 */
+html.dark .collapse-btn, html[data-theme="dark"] .collapse-btn {
+  color: var(--text-secondary) !important;
+}
+html.dark .collapse-btn:hover, html[data-theme="dark"] .collapse-btn:hover {
+  color: #00E599 !important;
+  background: rgba(0,229,153,0.1) !important;
+}
+
+/* 头像下拉等 */
+html.dark .el-dropdown, html[data-theme="dark"] .el-dropdown { color: var(--text-primary); }
 </style>
